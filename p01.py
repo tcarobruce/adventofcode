@@ -1,11 +1,5 @@
 import sys
-nums = (int(ln.strip()) for ln in open(sys.argv[1]))
+nums = [int(ln.strip()) for ln in open(sys.argv[1])]
 
 # part 1
-last = None
-total = 0
-for n in nums:
-    if last is not None and n > last:
-        total += 1
-    last = n
-print(total)
+print(sum([b > a for a, b in zip(nums[:-1], nums[1:])]))
