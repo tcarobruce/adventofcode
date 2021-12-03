@@ -9,7 +9,6 @@ def most_common(nums, mask):
 
 # part 1
 ge = [0, 0]
-
 mask = 1 << (bitwidth - 1)
 while mask:
     mc = most_common(nums, mask)
@@ -24,15 +23,16 @@ print(ge[0] * ge[1])
 def apply_bit_criteria(nums, least=False):
     mask = 1 << (bitwidth - 1)
     while len(nums) > 1:
-        mc = most_common(nums, mask)
-        if least:
-            mc = 1 - mc
-        nums = {num for num in nums if bool(num & mask) == mc}
+        match = [[], []]
+        for num in nums:
+            match[bool(num & mask)].append(num)
+        nums = match[(len(match[1]) < len(match[0])) == least]
         mask >>= 1
     return nums.pop()
 
-oxygen = apply_bit_criteria(set(nums))
-co2 = apply_bit_criteria(set(nums), least=True)
+
+oxygen = apply_bit_criteria(nums)
+co2 = apply_bit_criteria(nums, least=True)
 
 print(co2 * oxygen)
 # 4790390
