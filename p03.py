@@ -1,41 +1,38 @@
 import sys
 
-lines = [
-    tuple([int(i) for i in ln.strip()]) for ln in open(sys.argv[1])
-]
+lines = [ln.strip() for ln in open(sys.argv[1])]
+bitwidth = len(lines[0])
+nums = [int(ln, 2) for ln in lines]
 
-def to_int(ar):
-    return int(''.join([str(bit) for bit in ar]), 2)
-
-def most_common(nums, bit):
-    return int(sum([num[bit] for num in nums]) * 2 >= len(nums))
+def most_common(nums, mask):
+    return int(sum([bool(num & mask) for num in nums]) * 2 >= len(nums))
 
 # part 1
-gamma, epsilon = [], []
+ge = [0, 0]
 
-for i, _ in enumerate(lines[0]):
-    mc = most_common(lines, i)
-    gamma.append(mc)
-    epsilon.append(1 - mc)
+mask = 1 << (bitwidth - 1)
+while mask:
+    mc = most_common(nums, mask)
+    ge[mc] ^= mask
+    mask >>= 1
 
-
-print(to_int(gamma) * to_int(epsilon))
+print(ge[0] * ge[1])
 # 841526
 
 # part 2
 
 def apply_bit_criteria(nums, least=False):
-    bit = 0
+    mask = 1 << (bitwidth - 1)
     while len(nums) > 1:
-        mc = most_common(nums, bit)
+        mc = most_common(nums, mask)
         if least:
             mc = 1 - mc
-        nums = {num for num in nums if num[bit] == mc}
-        bit += 1
+        nums = {num for num in nums if bool(num & mask) == mc}
+        mask >>= 1
     return nums.pop()
 
-oxygen = to_int(apply_bit_criteria(set(lines)))
-co2 = to_int(apply_bit_criteria(set(lines), least=True))
+oxygen = apply_bit_criteria(set(nums))
+co2 = apply_bit_criteria(set(nums), least=True)
 
 print(co2 * oxygen)
 # 4790390
