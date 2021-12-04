@@ -11,9 +11,22 @@ class Board:
 
         # assumes each number appears at most once per board
         self.index = {}
+        self.total_unmarked = 0
         for i, row in enumerate(self.rows):
             for j, val in enumerate(row):
                 self.index[val] = (i, j)
+                self.total_unmarked += val
+
+    @classmethod
+    def read_boards(cls, lines):
+        boards = []
+        lines = iter(lines)
+        while True:
+            try:
+                boards.append(cls.read_board(lines))
+            except StopIteration:
+                break
+        return boards
 
     @classmethod
     def read_board(cls, lines):
@@ -28,49 +41,30 @@ class Board:
             return
         i, j = self.index[call]
         self.marked[i][j] = 1
+        self.total_unmarked -= call
         return all(self.marked[i]) or all(self.marked[y][j] for y in range(5))
 
-    def sum_unmarked(self):
-        total = 0
-        for i, row in enumerate(self.rows):
-            for j, val in enumerate(row):
-                if not self.marked[i][j]:
-                    total += val
-        return total
-
-def read_boards(lines):
-    boards = []
-    lines = iter(lines)
-    while True:
-        try:
-            boards.append(Board.read_board(lines))
-        except StopIteration:
-            break
-    return boards
 
 def find_first_winning_score(boards, calls):
     for call in calls:
         for board in boards:
             result = board.handle_call(call)
             if result:
-                return board.sum_unmarked() * call
+                return board.total_unmarked * call
 
 # part 1: 38594
-boards = read_boards(lines)
+boards = Board.read_boards(lines)
 print(find_first_winning_score(boards, calls))
 
 # part 2: 21184
 def find_last_winning_score(boards, calls):
-    for call in calls:
-        new_boards = []
-        for board in boards:
-            result = board.handle_call(call)
-            if not result:
-                new_boards.append(board)
-        if len(new_boards) == 0:
-            break
-        boards = new_boards
-    return boards[0].sum_unmarked() * call
+    calls = iter(calls)
+    while boards:
+        call = next(calls)
+        board = boards[0]  # save in case it's the last one
+        boards = [b for b in boards if not b.handle_call(call)]
+    return board.total_unmarked * call
 
-boards = read_boards(lines)
+
+boards = Board.read_boards(lines)
 print(find_last_winning_score(boards, calls))
