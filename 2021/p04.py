@@ -1,8 +1,8 @@
 import sys
 
-lines = (ln.strip() for ln in open(sys.argv[1]))
+lines = [ln.strip() for ln in open(sys.argv[1])]
 
-calls = [int(n) for n in next(lines).split(",")]
+calls = [int(n) for n in lines.pop(0).split(",")]
 
 class Board:
     def __init__(self, rows):
@@ -16,7 +16,7 @@ class Board:
                 self.index[val] = (i, j)
 
     @classmethod
-    def read_board(cls):
+    def read_board(cls, lines):
         next(lines)  # blank line
         rows = []
         for _ in range(5):
@@ -38,16 +38,17 @@ class Board:
                     total += val
         return total
 
-def read_boards():
+def read_boards(lines):
     boards = []
+    lines = iter(lines)
     while True:
         try:
-            boards.append(Board.read_board())
+            boards.append(Board.read_board(lines))
         except StopIteration:
             break
     return boards
 
-def find_winning_score(boards, calls):
+def find_first_winning_score(boards, calls):
     for call in calls:
         for board in boards:
             result = board.handle_call(call)
@@ -55,6 +56,21 @@ def find_winning_score(boards, calls):
                 return board.sum_unmarked() * call
 
 # part 1: 38594
-boards = read_boards()
-print(find_winning_score(boards, calls))
+boards = read_boards(lines)
+print(find_first_winning_score(boards, calls))
 
+# part 2: 21184
+def find_last_winning_score(boards, calls):
+    for call in calls:
+        new_boards = []
+        for board in boards:
+            result = board.handle_call(call)
+            if not result:
+                new_boards.append(board)
+        if len(new_boards) == 0:
+            break
+        boards = new_boards
+    return boards[0].sum_unmarked() * call
+
+boards = read_boards(lines)
+print(find_last_winning_score(boards, calls))
