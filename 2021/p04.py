@@ -14,13 +14,14 @@ for _ in lines:  # skips blank separator
 class Board:
     def __init__(self, rows):
         self.rows = rows
-        self.marked = [[0] * len(rows[0]) for _ in range(len(rows))]
-
-        # assumes each number appears at most once per board
         self.index = {}
         self.total_unmarked = 0
+        self.marked_rows = [0] * 5
+        self.marked_cols = [0] * 5
+
         for i, row in enumerate(self.rows):
             for j, val in enumerate(row):
+                assert val not in self.index, "Dupes not allowed!"
                 self.index[val] = (i, j)
                 self.total_unmarked += val
 
@@ -28,9 +29,10 @@ class Board:
         if call not in self.index:
             return
         i, j = self.index[call]
-        self.marked[i][j] = 1
+        self.marked_rows[i] += 1
+        self.marked_cols[j] += 1
         self.total_unmarked -= call
-        return all(self.marked[i]) or all(self.marked[y][j] for y in range(5))
+        return self.marked_rows[i] == 5 or self.marked_cols[j] == 5
 
 
 def find_wins(row_groups, calls):
