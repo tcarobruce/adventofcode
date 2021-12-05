@@ -1,5 +1,6 @@
 import sys
 from collections import Counter
+from itertools import zip_longest
 
 lines = []
 for ln in open(sys.argv[1]):
@@ -11,19 +12,37 @@ for ln in open(sys.argv[1]):
         )
     )
 
-def line_points(start, finish):
-    sx, fx = sorted([start[0], finish[0]])
-    sy, fy = sorted([start[1], finish[1]])
+def ranger(a, b):
+    r = range(min(a, b), max(a, b) + 1)
+    if a > b:
+        r = reversed(r)
+    return r
 
-    for x in range(sx, fx + 1):
-        for y in range(sy, fy + 1):
-            yield x, y
+def line_points(start, finish):
+    fillvalue = None
+    xs, ys = (), ()
+    if start[0] == finish[0]:
+        fillvalue = start[0]
+    else:
+        xs = ranger(start[0], finish[0])
+    if start[1] == finish[1]:
+        fillvalue = start[1]
+    else:
+        ys = ranger(start[1], finish[1])
+    return zip_longest(xs, ys, fillvalue=fillvalue)
+
+
+straight_counts = Counter()
+all_counts = Counter()
+for start, finish in lines:
+    straight = (start[0] == finish[0]) or (start[1] == finish[1])
+    for pt in line_points(start, finish):
+        all_counts[pt] += 1
+        if straight:
+            straight_counts[pt] += 1
 
 # part 1: 7414
-counts = Counter()
-for start, finish in lines:
-    if (start[0] == finish[0]) or (start[1] == finish[1]):
-        for pt in line_points(start, finish):
-            counts[pt] += 1
+print(len([v for v in straight_counts.values() if v > 1]))
 
-print(len([v for v in counts.values() if v > 1]))
+# part 2
+print(len([v for v in all_counts.values() if v > 1]))
