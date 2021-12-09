@@ -17,16 +17,17 @@ def neighbors(x, y):
         yield (x + 1, y)
 
 
-def get_risk(heights):
-    risk = 0
+def find_low_points(heights):
     for y, row in enumerate(heights):
         for x, height in enumerate(row):
             if all(
                 height < heights[ny][nx]
                 for nx, ny in neighbors(x, y)
             ):
-                risk += height + 1
-    return risk
+                yield x, y
 
+def get_risk(heights):
+    return sum([heights[y][x] + 1 for x, y in find_low_points(heights)])
 
+# part 1: 537
 print(get_risk(heights))
