@@ -31,3 +31,29 @@ def get_risk(heights):
 
 # part 1: 537
 print(get_risk(heights))
+
+def find_basin_size(heights, lowx, lowy):
+    q = [(lowx, lowy)]
+    size = 0
+    while q:
+        x, y = q.pop(0)
+        for nx, ny in neighbors(x, y):
+            height = heights[ny][nx]
+            if height is None or height == 9:
+                continue
+            q.append((nx, ny))
+            heights[ny][nx] = None
+            size += 1
+    return size
+
+def find_basin_sizes(heights):
+    sizes = []
+    low_points = list(find_low_points(heights))
+    for x, y in low_points:
+        sizes.append(find_basin_size(heights, x, y))
+    return sizes
+
+sizes = find_basin_sizes(heights)
+sizes.sort()
+print(sizes[-3] * sizes[-2] * sizes[-1])
+# part 2: 1142757
