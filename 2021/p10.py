@@ -15,9 +15,9 @@ def check_line(line):
             else:
                 return "corrupt", c
     if s:
-        return "incomplete", ""
+        return "incomplete", s
     else:
-        return "complete", ""
+        return "complete", s
 
 
 
@@ -28,15 +28,33 @@ scores = {
     ">": 25137,
 }
 
+base_score = {
+    "(": 1,
+    "[": 2,
+    "{": 3,
+    "<": 4,
+}
+
+def complete_stack(stack):
+    total = 0
+    for c in stack[::-1]:
+        total *= 5
+        total += base_score[c]
+    return total
+
+
 total = 0
+completions = []
 for ln in lines:
     result, c = check_line(ln)
     if result == "corrupt":
         total += scores[c]
+    elif result == "incomplete":
+        completions.append(complete_stack(c))
 
 # part 1: 388713
 print(total)
 
-
-
-
+# part 2: 3539961434
+completions.sort()
+print(completions[len(completions)//2])
