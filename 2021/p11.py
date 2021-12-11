@@ -45,13 +45,22 @@ def print_grid(grid):
 
 
 total_flashes = 0
-for step in range(101):
-    print()
-    print(f"After step {step}:")
-    print_grid(grid)
-    print(total_flashes)
-    total_flashes += itergrid(grid)
+step = 0
+print(f"After step {step}:")
+print_grid(grid)
+print(total_flashes)
+while True:
+    step += 1
+    flashes = itergrid(grid)
+    total_flashes += flashes
+    if step == 100 or flashes == 100:
+        print(f"\nAfter step {step}:")
+        print_grid(grid)
+        print(total_flashes)
+        print()
+    if flashes == 100:
+        break
 
 # part 1: 1627
-
+# part 2: 329
 
