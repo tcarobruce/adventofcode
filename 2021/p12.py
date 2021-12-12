@@ -25,11 +25,32 @@ def paths_to_end(edges, node="start", seen=set()):
         return 1
     if not is_big(node):
         seen.add(node)
-    r = sum([
+    return sum([
         paths_to_end(edges, n, seen)
         for n in edges[node]
     ])
-    return r
 
 
+# part 1: 3576
 print(paths_to_end(edges))
+
+
+def paths_to_end_twosmalls(edges, node="start", seen=set(), seen_once=None):
+    seen = seen.copy()
+    if node == "end":
+        return 1
+    if node in seen and (seen_once or node in ("start", "end")):
+        return 0
+    elif node in seen:
+        return sum([
+            paths_to_end_twosmalls(edges, n, seen, seen_once=node)
+            for n in edges[node]
+        ])
+    if not is_big(node):
+        seen.add(node)
+    return sum([
+        paths_to_end_twosmalls(edges, n, seen, seen_once=seen_once)
+        for n in edges[node]
+    ])
+
+print(paths_to_end_twosmalls(edges))
