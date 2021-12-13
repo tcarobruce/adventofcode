@@ -16,16 +16,13 @@ for ln in lines:
 
 
 def do_fold(points, axis, offset):
-    new_points = set()
-    for pt in points:
-        x, y = pt
-        n = x if axis == "x" else y
-        assert n != offset, "pt on fold!"
-        if n > offset:
-            n = 2 * offset - n
-            pt = (n, y) if axis == "x" else (x, n)
-        new_points.add(pt)
-    return new_points
+    return {
+        (
+            2 * offset - x if (axis == "x" and x > offset) else x,
+            2 * offset - y if (axis == "y" and y > offset) else y
+        )
+        for x, y in points
+    }
 
 
 def print_points(points):
@@ -42,5 +39,4 @@ for i, (axis, offset) in enumerate(folds, 1):
     if i == 1:
         print(len(points))
 
-print(points)
 print_points(points)
