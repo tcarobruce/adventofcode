@@ -1,3 +1,5 @@
+from functools import reduce
+from operator import mul, gt, lt, eq
 
 def to_bin(c):
     return bin(int(c, 16))[2:].zfill(4)
@@ -18,7 +20,6 @@ class Reader:
 
 def read_packet(packet):
     bits = to_bits(packet)
-    print(bits)
     reader = Reader(bits)
     return parse(reader)
 
@@ -51,10 +52,31 @@ def parse(r):
 
 
 def version_sum(parsed):
-    if parsed[1] == 4:
-        return parsed[0]
+    version, op, subs = parsed
+    if op == 4:
+        return version
     else:
-        return parsed[0] + sum([version_sum(p) for p in parsed[2]])
+        return version + sum([version_sum(p) for p in subs])
+
+
+operators = [
+    sum,
+    lambda s: reduce(mul, s),
+    min,
+    max,
+    None,  # identity
+    lambda s: int(gt(*s)),
+    lambda s: int(lt(*s)),
+    lambda s: int(eq(*s)),
+]
+
+def eval_packet(parsed):
+    version, op, s = parsed
+    if op == 4:
+        return s
+    #print(op, s, [eval_packet(p) for p in s])
+    return operators[op]([eval_packet(p) for p in s])
+
 
 transmissions = """
 D2FE28
@@ -64,6 +86,15 @@ EE00D40C823060
 620080001611562C8802118E34
 C0015000016115A2E0802F182340
 A0016C880162017C3686B18A3D4780
+
+C200B40A82
+04005AC33890
+880086C3E88112
+CE00C43D881120
+D8005AC2A8F0
+F600BC2D8F
+9C005AC2F8F0
+9C0141080250320F1802104A08
 """.split("\n")
 transmissions.append(open("p16_input.txt").read().strip())
 
@@ -72,7 +103,8 @@ for t in transmissions:
         continue
     print(t)
     parsed = read_packet(t)
-    print(parsed)
-    print(version_sum(parsed))
+    #print(parsed)
+    print("version sum:", version_sum(parsed))
+    print("evaluated:", eval_packet(parsed))
     print()
 
