@@ -1,3 +1,4 @@
+import sys
 import functools
 
 
@@ -54,8 +55,18 @@ def add(a, b):
 
 
 def magnitude(ar):
-    for level in range(4, 0, -1):
-        pass
+    for depth in range(4, 0, -1):
+        newar = []
+        iss = iter(range(len(ar)))
+        for i in iss:
+            if ar[i][1] == depth:
+                newar.append((3 * ar[i][0] + 2 * ar[i + 1][0], depth - 1))
+                next(iss)
+            else:
+                newar.append(ar[i])
+        ar = newar
+    result, _ = newar[0]
+    return result
 
 
 
@@ -82,10 +93,10 @@ x = '''[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]
 [[[5,[7,4]],7],1]
 [[[[4,2],2],6],[8,7]]'''.split('\n')
 print(functools.reduce(add, [parse(p) for p in x]))
+print(magnitude(parse([[1,2],[[3,4],5]])), 143)
+print(magnitude(parse([[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]])), 1384)
+print(magnitude(parse([[[[5,0],[7,4]],[5,5]],[6,6]])), 1137)
 
-# print(Tree.parse([9, 8]) + Tree.parse([1, 2]))
-
-#t = Tree.parse([[[[1,3],[5,3]],[[1,3],[8,7]]],[[[4,9],[6,9]],[[8,2],[7,3]]]])
-
-#for p, x in t.leaf_paths():
-#    print(p, x.value)
+summed = functools.reduce(add, (parse(ln.strip()) for ln in open(sys.argv[1])))
+print(summed)
+print(magnitude(summed))
