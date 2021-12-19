@@ -1,5 +1,6 @@
 import sys
 import functools
+from copy import deepcopy
 
 
 def parse(ar):
@@ -97,6 +98,18 @@ print(magnitude(parse([[1,2],[[3,4],5]])), 143)
 print(magnitude(parse([[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]])), 1384)
 print(magnitude(parse([[[[5,0],[7,4]],[5,5]],[6,6]])), 1137)
 
-summed = functools.reduce(add, (parse(ln.strip()) for ln in open(sys.argv[1])))
+orig = [parse(ln.strip()) for ln in open(sys.argv[1])]
+summed = functools.reduce(add, [deepcopy(n) for n in orig])
 print(summed)
 print(magnitude(summed))
+
+# tricky, add is not symmetric
+sums = [
+    magnitude(add(deepcopy(a), deepcopy(b)))
+    for a in orig
+    for b in orig
+]
+print(sums)
+print(max(sums))
+
+
