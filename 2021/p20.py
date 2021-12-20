@@ -58,11 +58,12 @@ def enhance(image, default=False):
 
 
 default = False
-for i in range(2):
-    render(image)
-    image = enhance(image, default=default)
-    default = not default
-    print("")
 
-render(image)
+for i in range(50):
+    if i == 2:
+        print(sum(image.values()))
+    #render(image)
+    image = enhance(image, default=default)
+    default = not default  # turn off for test
+
 print(sum(image.values()))
