@@ -5,11 +5,10 @@ lines = (ln.strip() for ln in open(sys.argv[1]))
 iea_string = next(lines)
 next(lines)
 
-image = set()
+image = {}
 for y, ln in enumerate(lines):
     for x, c in enumerate(ln):
-        if c == '#':
-            image.add((x, y))
+        image[(x, y)] = (c == '#')
 
 
 def neighbors(x, y):
@@ -18,10 +17,10 @@ def neighbors(x, y):
             yield x + i, y + j
 
 
-def enhance_pixel(x, y, image):
+def enhance_pixel(x, y, image, default=False):
     n = 0
     for xx, yy in neighbors(x, y):
-        if (xx, yy) in image:
+        if image.get((xx, yy), default):
             n += 1
         n <<= 1
     return iea_string[n>>1] == "#"
@@ -45,26 +44,25 @@ def render(image):
     xmin, xmax, ymin, ymax = image_bounds(image)
     for y in range(ymin, ymax + 1):
         for x in range(xmin, xmax + 1):
-            print(pixels[(x, y) in image], end="")
+            print(pixels[image.get((x, y))], end="")
         print()
 
 
-def enhance(image):
-    new_image = set()
+def enhance(image, default=False):
+    new_image = {}
     xmin, xmax, ymin, ymax = image_bounds(image)
-    for y in range(ymin - 3, ymax + 4):
-        for x in range(xmin - 3, xmax + 4):
-            if enhance_pixel(x, y, image):
-                new_image.add((x, y))
+    for y in range(ymin - 2, ymax + 3):
+        for x in range(xmin - 2, xmax + 3):
+            new_image[(x, y)] = enhance_pixel(x, y, image, default=default)
     return new_image
 
 
-
-enhance_pixel(-1000, -1000, image)
-for _ in range(3):
+default = False
+for i in range(2):
     render(image)
-    image = enhance(image)
+    image = enhance(image, default=default)
+    default = not default
     print("")
 
 render(image)
-print(len(image))
+print(sum(image.values()))
