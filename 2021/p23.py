@@ -1,37 +1,38 @@
+import sys
 from functools import lru_cache
-
-part1_test = """#############
-#...........#
-###B#C#B#D###
-  #A#D#C#A#
-  #########""".split("\n")
-
-part1_real = """#############
-#...........#
-###B#A#B#C###
-  #D#A#D#C#
-  #########""".split("\n")
+from heapq import heappop, heappush
+from random import random
 
 # part 1 by inspection
 print(10 + 90 + 15000 + 1400 + 6)
 
-part2_test = """#############
+parts = ["""#############
+#...........#
+###B#C#B#D###
+  #A#D#C#A#
+  #########""".split("\n"),
+"""#############
+#...........#
+###B#A#B#C###
+  #D#A#D#C#
+  #########""".split("\n"),
+"""#############
 #...........#
 ###B#C#B#D###
   #D#C#B#A#
   #D#B#A#C#
   #A#D#C#A#
-  #########""".split("\n")
-
-part2_real = """#############
+  #########""".split("\n"),
+"""#############
 #...........#
 ###B#A#B#C###
   #D#C#B#A#
   #D#B#A#C#
   #D#A#D#C#
-  #########""".split("\n")
+  #########""".split("\n"),
+]
 
-prob = part1_test
+prob = parts[int(sys.argv[1]) - 1]
 
 #0123456789A#
 #...........#
@@ -47,7 +48,6 @@ prob = part1_test
   #D#B#A#C#
   #D#A#D#C#
 
-# datastructure = (hallway, siderooms)
 
 letters = "ABCD"
 energy = [1, 10, 100, 1000]
@@ -65,11 +65,10 @@ for c in [3, 5, 7, 9]:
 def is_enterable(siderooms, amph):
     return all(siderooms[i] in {amph, None} for i in range(amph*depth, (amph+1)*depth))
 
-def is_done(siderooms, amph):
-    return all(siderooms[i] == amph for i in range(amph*depth, (amph+1)*depth))
 
 def is_reachable(h1, h2, hallway):
     return all(hallway[i] is None for i in range(min(h1, h2), max(h1, h2) + 1))
+
 
 def legal_moves(hallway, siderooms):
     for hallpos, amph in enumerate(hallway):
@@ -119,12 +118,11 @@ def make_move(hallway, siderooms, move):
     return hallway, siderooms
 
 
-def ph(hallway):
+def pp(hallway, siderooms):
     for h in hallway:
         print("." if h is None else"ABCD"[h], end="")
     print()
 
-def ps(siderooms):
     for offset in range(depth):
         print("##", end="")
         s = [siderooms[a * depth + offset] for a in range(4)]
@@ -133,37 +131,25 @@ def ps(siderooms):
 
 
 def _least_cost(hallway, siderooms):
-    if siderooms == goal and hallway == gh:
-        return 0
+    seen = set((tuple(hallway), tuple(siderooms)))
 
-    dbg = 0
-    if dbg:
-        print('-' * 40)
-        ph(hallway)
-        ps(siderooms)
+    states = [(0, 0, hallway, siderooms)]
 
-    moves = list(legal_moves(hallway, siderooms))
-    moves.sort()
+    while True:
+        cost, _, hallway, siderooms = heappop(states)
+        th = tuple(hallway)
+        ts = tuple(siderooms)
+        if (th, ts) in seen:
+            continue
+        seen.add((th, ts))
+        print(cost, len(states))
+        if siderooms == goal and hallway == gh:
+            return cost
 
-    for cost, move in moves:
-        new_hallway, new_siderooms = make_move(hallway, siderooms, move)
-        if dbg:
-            print()
-            ph(new_hallway)
-            ps(new_siderooms)
-            print(cost, move)
-            # if not move[3]:
-            #     input()
-            input()
-        new_cost = _least_cost(new_hallway, new_siderooms)
-        if new_cost is not None:
-            print("-" * 50)
-            # ph(hallway)
-            # ps(siderooms)
-            print('->', cost, move )
-            ph(new_hallway)
-            ps(new_siderooms)
-            return new_cost + cost
+        for new_cost, move in legal_moves(hallway, siderooms):
+            new_hallway, new_siderooms = make_move(hallway, siderooms, move)
+            n = (new_cost + cost, random(), new_hallway, new_siderooms)
+            heappush(states, n)
 
 
 def clean_siderooms(siderooms):
@@ -183,13 +169,14 @@ def clean_siderooms(siderooms):
 
 def least_cost(hallway, siderooms):
     siderooms = clean_siderooms(siderooms)
-    x = sum(range(1, depth+1))
-    base = sum([x * e for e in energy])  # cost of moving everyone back in
-    print(base)
+
+    base = 0  # cost to move back in
+    for sideroom in range(4):
+        for d in range(depth):
+            if siderooms[sideroom * depth + d] is not None:
+                base += energy[sideroom] * (d + 1)
+
     return base + _least_cost(hallway, siderooms)
 
-# ph(hallway)
-# ps(siderooms)
-# for lm in legal_moves(hallway, siderooms):
-#     print(lm)
+
 print(least_cost(hallway, siderooms))
