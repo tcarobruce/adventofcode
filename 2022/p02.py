@@ -12,3 +12,16 @@ def score_row(row):
 
 
 print(sum([score_row(p) for p in plays]))  # 13221
+
+
+offsets = [-1, 0, 1]
+results2 = [0, 3, 6]
+
+def score_row2(row):
+    theirs, result = row
+    result_index = "XYZ".index(result)
+    mine = ("ABC".index(theirs) + offsets[result_index]) % 3
+    return mine + 1 + results2[result_index]
+
+
+print(sum([score_row2(p) for p in plays]))  # 13131
