@@ -1,5 +1,7 @@
 import sys
 
+lines = [ln.strip() for ln in open(sys.argv[1])]
+
 def priority(c):
     return ord(c.lower()) - ord('a') + (27 if 'A' <= c <= 'Z' else 1)
 
@@ -9,4 +11,14 @@ def find_dupe(ln):
 
 
 # part 1
-print(sum([priority(find_dupe(ln.strip())) for ln in open(sys.argv[1])]))  # 7766
+print(sum([priority(find_dupe(ln)) for ln in lines]))  # 7766
+
+def triples(lines):
+    it = iter(lines)
+    return zip(it, it, it)
+
+def intersect(a, b, c):
+    return (set(a) & set(b) & set(c)).pop()
+
+# part 2
+print(sum([priority(intersect(*trip)) for trip in triples(lines)]))
