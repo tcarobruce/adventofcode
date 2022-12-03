@@ -1,24 +1,29 @@
 import sys
+from operator import and_
+from functools import reduce
+from string import ascii_letters
 
 lines = [ln.strip() for ln in open(sys.argv[1])]
 
 def priority(c):
-    return ord(c.lower()) - ord('a') + (27 if 'A' <= c <= 'Z' else 1)
+    return ascii_letters.index(c) + 1
 
-def find_dupe(ln):
+def intersect(*its):
+    return reduce(and_, (set(it) for it in its))
+
+def score_intersection(*its):
+    return priority(intersect(*its).pop())
+
+def bisect(ln):
     mid = len(ln) // 2
-    return (set(ln[:mid]) & set(ln[mid:])).pop()
-
+    return ln[:mid], ln[mid:]
 
 # part 1
-print(sum([priority(find_dupe(ln)) for ln in lines]))  # 7766
+print(sum([score_intersection(*bisect(ln)) for ln in lines]))  # 7766
 
 def triples(lines):
     it = iter(lines)
     return zip(it, it, it)
 
-def intersect(a, b, c):
-    return (set(a) & set(b) & set(c)).pop()
-
 # part 2
-print(sum([priority(intersect(*trip)) for trip in triples(lines)]))
+print(sum([score_intersection(*trip) for trip in triples(lines)]))  # 2415
