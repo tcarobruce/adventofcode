@@ -1,14 +1,17 @@
 import sys
 
-groups = open("p01_input.txt").read().split("\n\n")
+groups = open(sys.argv[1]).read().split("\n\n")
 
-m = 0
+calories = []
 for group in groups:
-    calories = sum(
-        [
-            int(ln.strip()) for ln in group.split("\n") if ln.strip()
-        ]
+    calories.append(
+        sum(
+            [
+                int(ln.strip()) for ln in group.split("\n") if ln.strip()
+            ]
+        )
     )
-    m = max(calories, m)
 
-print(m)
+calories.sort()
+print(calories[-1])
+print(sum(calories[-3:]))
