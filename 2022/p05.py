@@ -2,28 +2,16 @@ import sys
 import re
 from copy import deepcopy
 
-f = iter(open(sys.argv[1]))
+f = open(sys.argv[1])
 
-stacks = None
-stack_count = None
-
-for line in f:
-    if stacks is None:
-        stack_count = len(line) // 4
-        stacks = [[] for _ in range(stack_count)]
-    if "[" not in line:
-        next(f)  # skip blank line
-        break
-    stack = 0
-    for stack in range(stack_count):
-        c = line[stack * 4 + 1]
-        if c != " ":
-            stacks[stack].insert(0, c)
+stack_input, move_input = f.read().split("\n\n")
+crates = [ln[1::4] for ln in stack_input.splitlines()[:-1]]
+stacks = [[c for c in t[::-1] if c != " "] for t in zip(*crates)]
 
 patt = re.compile(r'move (\d+) from (\d+) to (\d+)')
 moves = []
 
-for line in f:
+for line in move_input.splitlines():
     m = patt.match(line)
     count, src, dest = [int(x) for x in m.groups()]
     moves.append((src - 1, dest - 1, count))  # zero-index
