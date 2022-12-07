@@ -59,7 +59,14 @@ def visit(d):
 
 
 tot = 0
+available = 0
+best = disk = 70000000
 for d, size in visit({"/": root}):
     if size < 100000:
         tot += size
+    if d == "/":
+        available = disk - size
+    elif available + size >= 30000000:
+        best = min(size, best)
 print(tot)
+print(best)
