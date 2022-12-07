@@ -1,48 +1,35 @@
 import sys
-import re
 
 lines = open(sys.argv[1]).read().splitlines()
 
-
 root = {}
 dirstack = [root]
-
-cdpatt = re.compile(r"\$ cd ([\w\./]+)")
-dirpatt = re.compile(r"dir (\w+)")
-filepatt = re.compile(r"(\d+) ([\w\.]+)")
-
-lines = iter(lines)
-
 current_dir = root
 
 for line in lines:
-    if line.startswith("$"):
-        if m := cdpatt.match(line):
-            d = m.group(1)
-            if d == "/":
-                dirstack = [root]
-                current_dir = root
-            elif d == "..":
-                dirstack.pop()
-                current_dir = dirstack[-1]
-            else:
-                current_dir = current_dir[d]
-                dirstack.append(current_dir)
-        elif line == "$ ls":
-            continue
+    parts = line.split()
+    if parts[:2] == ["$", "cd"]:
+        d = parts[2]
+        if d == "/":
+            dirstack = [root]
+            current_dir = root
+        elif d == "..":
+            dirstack.pop()
+            current_dir = dirstack[-1]
         else:
-            assert False, "unexpected cmd: " + line
+            current_dir = current_dir[d]
+            dirstack.append(current_dir)
+    elif parts[:2] == ["$", "ls"]:
+        continue
+    elif parts[0] == "dir":
+        current_dir.setdefault(parts[1], {})
+    elif parts[0].isdigit():
+        size = int(parts[0])
+        for d in dirstack:
+            d.setdefault("__TOTAL__", 0)
+            d["__TOTAL__"] += size
     else:
-        if m := dirpatt.match(line):
-            current_dir.setdefault(m.group(1), {})
-        elif m := filepatt.match(line):
-            size = int(m.group(1))
-            current_dir.setdefault("__FILES__", {})[m.group(2)] = size
-            for d in dirstack:
-                d.setdefault("__TOTAL__", 0)
-                d["__TOTAL__"] += size
-        else:
-            assert False, "unexpected ls: " + line
+        assert False, "unexpected ls: " + line
 
 
 def visit(d):
