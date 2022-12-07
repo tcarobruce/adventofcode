@@ -13,7 +13,7 @@ filepatt = re.compile(r"(\d+) ([\w\.]+)")
 
 lines = iter(lines)
 
-current_dir = {}
+current_dir = root
 
 for line in lines:
     if line.startswith("$"):
@@ -36,37 +36,31 @@ for line in lines:
         if m := dirpatt.match(line):
             current_dir.setdefault(m.group(1), {})
         elif m := filepatt.match(line):
-            current_dir.setdefault("__FILES__", {})[m.group(2)] = int(m.group(1))
+            size = int(m.group(1))
+            current_dir.setdefault("__FILES__", {})[m.group(2)] = size
+            for d in dirstack:
+                d.setdefault("__TOTAL__", 0)
+                d["__TOTAL__"] += size
         else:
             assert False, "unexpected ls: " + line
 
-
-def du(d):
-    total = 0
-    for k, v in d.items():
-        if k == "__FILES__":
-            total += sum(v.values())
-        else:
-            total += du(v)
-    return total
 
 def visit(d):
     for k, v in d.items():
         if k == "__FILES__":
             continue
-        yield k, du(v)
-        yield from visit(v)
+        elif k == "__TOTAL__":
+            yield v
+        else:
+            yield from visit(v)
 
 
-tot = 0
-available = 0
-best = disk = 70000000
-for d, size in visit({"/": root}):
-    if size < 100000:
-        tot += size
-    if d == "/":
-        available = disk - size
-    elif available + size >= 30000000:
-        best = min(size, best)
-print(tot)
-print(best)
+smalldir_limit = 100000
+disk = 70000000
+needed = 30000000
+
+sizes = list(visit(root))
+available = disk - max(sizes)
+
+print(sum([s for s in sizes if s < smalldir_limit]))
+print(min([s for s in sizes if (available + s >= needed)]))
