@@ -34,4 +34,40 @@ for j in range(len(grid[0])):
             visible.add((l - i, j))
             bottom = height
 
+# part 1
 print(len(visible))
+
+def scenic_score(i, j):
+    total = 1
+    height = grid[i][j]
+    score = 0
+    for l in range(i - 1, -1, -1):
+        score += 1
+        if grid[l][j] >= height:
+            break
+    total *= score
+
+    score = 0
+    for l in range(i + 1, len(grid)):
+        score += 1
+        if grid[l][j] >= height:
+            break
+    total *= score
+
+    score = 0
+    for l in range(j - 1, -1, -1):
+        score += 1
+        if grid[i][l] >= height:
+            break
+    total *= score
+
+    score = 0
+    for l in range(j + 1, len(grid[0])):
+        score += 1
+        if grid[i][l] >= height:
+            break
+    total *= score
+
+    return total
+
+print(max([scenic_score(i, j) for i in range(len(grid)) for j in range(len(grid[0]))]))
