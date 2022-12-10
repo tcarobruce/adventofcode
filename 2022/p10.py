@@ -2,7 +2,6 @@ import sys
 from collections import defaultdict
 
 lines = open(sys.argv[1]).read().splitlines()
-lines += ["noop", "noop"]
 
 moments = set(range(20, 221, 40))
 
@@ -24,9 +23,17 @@ def process(lines):
 
 
 tot = 0
+print("#", end="")
 for cycle, X in process(lines):
     if cycle in moments:
         tot += X * cycle
+    if (cycle - 1) % 40 == 0:
+        print()
+    if abs(X - ((cycle - 1)% 40)) <= 1:
+        print("#", end="")
+    else:
+        print(".", end="")
 
+print()
 print(tot)
 
