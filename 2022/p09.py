@@ -26,42 +26,45 @@ def follow(h, t):
             return ((h[0] + t[0]) // 2, t[1])
         else:
             assert False, "Unexpected positions %s %s" % (h, t)
-    else:
-        assert dist == 3
+    elif dist == 3:
         if abs(h[0] - t[0]) == 1:
             return (h[0], (h[1] + t[1]) // 2)
         if abs(h[1] - t[1]) == 1:
             return ((h[0] + t[0]) // 2, h[1])
         assert False, "also unexpected positions %s %s" % (h, t)
+    elif dist == 4:
+        return ((h[0] + t[0]) // 2, (h[1] + t[1]) // 2)
+    assert False
 
 
 def draw_grid(size=6):
     for y in range(size):
         for x in range(size):
             p = (x, size - y - 1)
-            if p == (0, 0):
-                print("s", end="")
-            elif p == H:
+            if p == rope[0]:
                 print("H", end="")
-            elif p == T:
-                print("T", end="")
+            elif p in rope:
+                print(rope.index(p), end="")
+            elif p == (0, 0):
+                print("s", end="")
             else:
                 print(".", end="")
         print()
 
 
-H = (0, 0)
-T = (0, 0)
-positions = {T}
+rope = [(0, 0) for _ in range(10)]
+positions1 = {rope[0]}
+positions10 = {rope[9]}
 
 for line in lines:
     direction, count = line.split()
     count = int(count)
     for _ in range(count):
-        H = move(H, direction)
-        T = follow(H, T)
-        positions.add(T)
-        #draw_grid()
-        #input()
+        rope[0] = move(rope[0], direction)
+        for i in range(9):
+            rope[i + 1] = follow(rope[i], rope[i + 1])
+        positions1.add(rope[1])
+        positions10.add(rope[9])
 
-print(len(positions))
+print(len(positions1))
+print(len(positions10))
