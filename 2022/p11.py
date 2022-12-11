@@ -19,6 +19,8 @@ class Monkey:
         self.divis = divis
         self.throw = throw
         self.handled = 0
+        self.cap = None
+        self.relief = 3
 
     @classmethod
     def from_lines(cls, lines):
@@ -40,14 +42,18 @@ class Monkey:
         return cls(items, op, divis, throw)
 
     def inspect(self, item):
-        return self.op(item) % cap
+        r = self.op(item)
+        if self.cap:
+            r = r % cap
+        return r
 
     def receive(self, item):
         self.items.append(item)
 
     def handle_one(self, item, monkeys):
         item = self.inspect(item)
-        #item //= 3
+        if self.relief:
+            item //= self.relief
         dest = self.throw(item)
         monkeys[dest].receive(item)
         self.handled += 1
@@ -58,7 +64,6 @@ class Monkey:
         self.items = []
 
 
-
 lines = open(sys.argv[1]).read().splitlines()
 lines = (ln for ln in lines if ln)
 monkeys = []
@@ -66,20 +71,34 @@ monkeys = []
 for line in lines:
     monkeys.append(Monkey.from_lines(lines))
 
+orig_items = [m.items[:] for m in monkeys]
 
-cap = prod([m.divis for m in monkeys])
-
-
-for r in range(10000):
-    print(r)
+# part 1
+for _ in range(20):
     for m in monkeys:
         m.handle_turn(monkeys)
 
-    if ((r + 1) % 1000 == 0):
-        for i, m in enumerate(monkeys):
-            print(f"Monkey {i} inspected items {m.handled} times. {len(m.items)}")
-        print()
-        input()
+print(prod(sorted([m.handled for m in monkeys])[-2:]))
 
-monkeys.sort(key=lambda m: -m.handled)
-print(monkeys[0].handled * monkeys[1].handled)
+# part 2
+cap = prod([m.divis for m in monkeys])
+
+# reset
+for m, items in zip(monkeys, orig_items):
+    m.items = items
+    m.cap = cap
+    m.relief = 0
+    m.handled = 0
+
+
+for r in range(1, 10001):
+    for m in monkeys:
+        m.handle_turn(monkeys)
+
+    # if (r % 1000 == 0):
+    #     print(r)
+    #     for i, m in enumerate(monkeys):
+    #         print(f"Monkey {i} inspected items {m.handled} times. {len(m.items)}")
+    #     print()
+
+print(prod(sorted([m.handled for m in monkeys])[-2:]))
