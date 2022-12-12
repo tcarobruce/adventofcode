@@ -26,9 +26,7 @@ def find_path_length(start):
     q = [(0, start)]
     visited = set(start)
 
-    while True:
-        if not q:
-            return 100000
+    while q:
         steps, pos = heappop(q)
         if pos == end:
             return steps
@@ -48,4 +46,5 @@ def find_path_length(start):
 
 
 print(find_path_length(start))
-print(min([find_path_length(s) for s, h in grid.items() if h == 0]))
+all_paths = [find_path_length(s) for s, h in grid.items() if h == 0]
+print(min([p for p in all_paths if p is not None]))
