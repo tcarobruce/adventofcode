@@ -14,9 +14,6 @@ for y, line in enumerate(open(sys.argv[1]).read().splitlines()):
         grid[(x, y)] = ord(c) - ord('a')
 
 
-q = [(0, start)]
-visited = set(start)
-
 def neighbors(pos):
     x, y = pos
     yield (x - 1, y)
@@ -25,21 +22,30 @@ def neighbors(pos):
     yield (x, y + 1)
 
 
-while True:
-    steps, pos = heappop(q)
-    if pos == end:
-        print(steps)
-        break
+def find_path_length(start):
+    q = [(0, start)]
+    visited = set(start)
 
-    height = grid[pos]
+    while True:
+        if not q:
+            return 100000
+        steps, pos = heappop(q)
+        if pos == end:
+            return steps
 
-    for n in neighbors(pos):
-        if n in visited:
-            continue
-        nheight = grid.get(n)
-        if nheight is None:  # outside grid
-            continue
-        if nheight - height > 1:
-            continue
-        visited.add(n)
-        heappush(q, (steps + 1, n))
+        height = grid[pos]
+
+        for n in neighbors(pos):
+            if n in visited:
+                continue
+            nheight = grid.get(n)
+            if nheight is None:  # outside grid
+                continue
+            if nheight - height > 1:
+                continue
+            visited.add(n)
+            heappush(q, (steps + 1, n))
+
+
+print(find_path_length(start))
+print(min([find_path_length(s) for s, h in grid.items() if h == 0]))
