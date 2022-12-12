@@ -1,5 +1,5 @@
 import sys
-from heapq import heappop, heappush
+from collections import deque
 
 grid = {}
 start = end = None
@@ -23,11 +23,11 @@ def neighbors(pos):
 
 
 def find_path_length(start):
-    q = [(0, start)]
+    q = deque([(0, start)])
     visited = set(start)
 
     while q:
-        steps, pos = heappop(q)
+        steps, pos = q.popleft()
         if pos == end:
             return steps
 
@@ -42,7 +42,7 @@ def find_path_length(start):
             if nheight - height > 1:
                 continue
             visited.add(n)
-            heappush(q, (steps + 1, n))
+            q.append((steps + 1, n))
 
 
 print(find_path_length(start))
