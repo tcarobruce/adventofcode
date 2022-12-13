@@ -1,10 +1,11 @@
 import sys
 from itertools import zip_longest
+from functools import cmp_to_key
 
 FILL = object()
 
 doc = open(sys.argv[1]).read()
-pairs = [p.strip().split("\n") for p in doc.split("\n\n")]
+pairs = [[eval(ln) for ln in p.strip().split("\n")] for p in doc.split("\n\n")]
 
 def cmp(a, b):
     return (a > b) - (a < b)
@@ -31,8 +32,16 @@ def compare(a, b):
 
 total = 0
 for i, (a, b) in enumerate(pairs, 1):
-    a = eval(a)
-    b = eval(b)
     if compare(a, b) < 0:
         total += i
 print(total)
+
+distress = [[[2]], [[6]]]
+all_lines = sum(pairs, distress)
+all_lines.sort(key=cmp_to_key(compare))
+
+result = 1
+for i, ln in enumerate(all_lines, 1):
+    if ln in distress:
+        result *= i
+print(result)
