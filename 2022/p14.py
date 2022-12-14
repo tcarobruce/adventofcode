@@ -1,6 +1,7 @@
 import sys
 
 G = {}
+source = (500, 0)
 
 
 for ln in open(sys.argv[1]):
@@ -23,21 +24,19 @@ def draw(g):
     maxy = max(ys)
     for y in range(miny, maxy + 1):
         for x in range(minx, maxx + 1):
-            if (x, y) == (500, 0):
+            if (x, y) == source:
                 print('+', end='')
                 continue
             print(g.get((x, y), '.'), end='')
         print()
 
 
-
-def pourone(g):
-    x, y = 500, 0
-    maxy = max([c[1] for c in g])
+def pourone(g, maxy):
+    x, y = source
     while True:
-        if y > maxy:
-            return None
-        if (x, y + 1) not in g:
+        if y >= maxy:
+            return (x, y)
+        elif (x, y + 1) not in g:
             y += 1
         elif (x - 1, y + 1) not in g:
             x -= 1
@@ -49,13 +48,14 @@ def pourone(g):
             return (x, y)
 
 count = 0
+maxy = max([c[1] for c in G]) + 1
 while True:
-    d = pourone(G)
-    if d is None:
-        print(count)
-        break
+    d = pourone(G, maxy)
     count += 1
     G[d] = 'o'
+    if d == source:
+        print(count)
+        break
 
 
 
