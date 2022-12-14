@@ -1,13 +1,14 @@
 import sys
 from itertools import zip_longest
 from functools import cmp_to_key
+import json
 from math import prod
 
 FILL = object()
 
 doc = open(sys.argv[1]).read()
 pairs = [
-    [eval(ln) for ln in p.strip().split("\n")]
+    [json.loads(ln) for ln in p.strip().split("\n")]
     for p in doc.split("\n\n")
 ]
 
