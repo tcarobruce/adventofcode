@@ -49,13 +49,16 @@ def pourone(g, maxy):
 
 count = 0
 maxy = max([c[1] for c in G]) + 1
+part1 = False
+
 while True:
     d = pourone(G, maxy)
+    if not part1 and d[1] == maxy:
+        print(count)
+        part1 = True
+
     count += 1
     G[d] = 'o'
     if d == source:
         print(count)
         break
-
-
-
