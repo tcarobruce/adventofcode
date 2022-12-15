@@ -34,19 +34,31 @@ def add_ranges(r1, r2):
     return range(min(r1.start, r2.start), max(r1.stop, r2.stop))
 
 
-ranges = []
-for sensor in sensors:
-    next_ranges = []
-    rr = range_for_row(sensor, row)
-    if rr is None:
-        continue
-    for ro in ranges:
-        if overlap(rr, ro):
-            rr = add_ranges(rr, ro)
-        else:
-            next_ranges.append(ro)
-    next_ranges.append(rr)
-    ranges = next_ranges
+def find_ranges(row):
+    ranges = []
+    for sensor in sensors:
+        next_ranges = []
+        rr = range_for_row(sensor, row)
+        if rr is None:
+            continue
+        for ro in ranges:
+            if overlap(rr, ro):
+                rr = add_ranges(rr, ro)
+            else:
+                next_ranges.append(ro)
+        next_ranges.append(rr)
+        ranges = next_ranges
+    return ranges
 
 
-print(sum([len(r) - 1 for r in ranges]))
+print(sum([len(r) - 1 for r in find_ranges(row)]))
+
+for row in range(0, 4000001):
+    fr = find_ranges(row)
+    if len(fr) > 1:
+        print(row, fr)
+        break
+    if row % 100000 == 0:
+        print(row)
+
+print(4000000 * fr[0].stop + row)
