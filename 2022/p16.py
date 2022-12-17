@@ -1,6 +1,7 @@
 import sys
 import re
 from functools import lru_cache
+from heapq import heappush, heappop
 
 valves = {}
 connections = {}
@@ -16,39 +17,33 @@ for line in lines:
     connections[valve] = dests.split(", ")
 
 
-@lru_cache(maxsize=None)
-def best_release(valve, released=0, flow_rate=0, minutes=30, open_valves=None):
-    print(minutes, released, flow_rate, valve, len(open_valves or []))
-    if minutes == 0:
-        return released
+def find_best_release(time_limit=30):
+    # minutes, -released, flow_rate, valve, open_valves
+    q = [(0, 0, 0, "AA", set())]
 
-    if open_valves is None:
-        open_valves = frozenset()
+    seen = set()
 
-    max_release = 0
-    releases = []
-    if valve not in open_valves and valves[valve] > 0:
-        releases.append(
-            best_release(
-                valve,
-                released=released + flow_rate,
-                flow_rate=flow_rate + valves[valve],
-                minutes=minutes-1,
-                open_valves=open_valves | frozenset([valve]),
-            )
-        )
+    while True:
+        minutes, released, flow_rate, valve, open_valves = heappop(q)
 
-    for other in connections[valve]:
-        releases.append(
-            best_release(
-                other,
-                released=released + flow_rate,
-                flow_rate=flow_rate,
-                minutes=minutes-1,
-                open_valves=open_valves,
-            )
-        )
+        if minutes == time_limit:
+            return -released
 
-    return max(releases)
+        minutes += 1
+        released -= flow_rate
 
-print(best_release("AA"))
+        k = (valve, released)
+        if k in seen:
+            continue
+
+        if valve not in open_valves and valves[valve] > 0:
+            # open the valve
+            heappush(q, (minutes, released, flow_rate + valves[valve], valve, open_valves | {valve}))
+
+        for conn in connections[valve]:
+            heappush(q, (minutes, released, flow_rate, conn, open_valves))
+
+        seen.add(k)
+
+
+print(find_best_release())
