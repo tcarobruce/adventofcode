@@ -21,8 +21,8 @@ def combine(me, el, open_valves, flow_rate):
     me, me_action = me
     el, el_action = el
 
-def find_best_release(time_limit=30):
-    # minutes, -released, flow_rate, valve, open_valves
+def find_best_release(time_limit=30, part=1):
+    # minutes, -released, flow_rate, me, elephant, open_valves
     q = [(0, 0, 0, "AA", "AA", set())]
 
     seen = set()
@@ -33,7 +33,7 @@ def find_best_release(time_limit=30):
         minutes, released, flow_rate, me, el, open_valves = heappop(q)
         if last < minutes:
             last = minutes
-            print(last, len(q))
+            print("  ", last, len(q))
 
         if minutes == time_limit:
             return -released
@@ -50,14 +50,18 @@ def find_best_release(time_limit=30):
         if me not in open_valves and valves[me] > 0:
             me_actions.append(("open", me, me))
 
-        if el not in open_valves and valves[el] > 0 and me != el:
-            # open the valve
-            el_actions.append(("open", el, el))
-
         for conn in connections[me]:
             me_actions.append(("move", me, conn))
-        for conn in connections[el]:
-            el_actions.append(("move", el, conn))
+
+        if part == 1:
+            el_actions = [("move", el, el)]
+
+        else:
+            if el not in open_valves and valves[el] > 0 and me != el:
+                el_actions.append(("open", el, el))
+
+            for conn in connections[el]:
+                el_actions.append(("move", el, conn))
 
         for (me_action, me_start, me_dest), (el_action, el_start, el_dest) in product(me_actions, el_actions):
             fr = flow_rate
@@ -75,5 +79,5 @@ def find_best_release(time_limit=30):
         seen.add(k)
 
 
-#print(find_best_release())
-print(find_best_release(26))
+print(find_best_release())
+print(find_best_release(26, part=2))
