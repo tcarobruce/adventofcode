@@ -1,8 +1,8 @@
 import sys
-from itertools import cycle
+from itertools import cycle, count
 
 jet = lambda i: "< >".index(i) - 1
-jets = cycle(open(sys.argv[1]).read().strip())
+jets = open(sys.argv[1]).read().strip()
 width = 7
 
 raw_rocks = [r.split() for r in """
@@ -35,10 +35,6 @@ for rr in raw_rocks:
             rock.append((xoff, yoff))
     rocks.append(rock)
 
-rocks = cycle(rocks)
-
-
-G = {(i, 0) for i in range(7)}
 
 def collision(pos, rock, grid):
     # pos is always lower left
@@ -72,33 +68,56 @@ def draw(grid, rock, pos):
         print('|')
 
 
+def drop_rocks(rocks, jets):
+    rocks = cycle(enumerate(rocks))
+    jets = cycle(enumerate(jets))
+    G = {(i, 0) for i in range(7)}
+    height = 0
+
+    for rock_count in count(1):
+        ri, rock = next(rocks)
+        x, y = 2, height + 4
+
+        while True:
+            ji, j = next(jets)
+            xpush = jet(j)
+            if not collision((x + xpush, y), rock, G):
+                x += xpush
+            if collision((x, y - 1), rock, G):
+                height = max(height, y + max([r[1] for r in rock]))
+                for xoff, yoff in rock:
+                    G.add((x + xoff, y + yoff))
+                break
+            else:
+                y -= 1
+        yield rock_count, ri, ji, height
 
 
-height = 0
-dbg = 0
-for _ in range(2022):
-    rock = next(rocks)
-    x, y = 2, height + 4
-    if dbg:
-        print('-' * 40)
-        print(height)
-        draw(G, rock, (x, y)); input()
+def find_cycle(rocks, jets):
+    cycles = {}
+    last_landed = False
+    for rock_count, ri, ji, height in drop_rocks(rocks, jets):
+        k = ri, ji
+        cycles.setdefault(k, []).append((rock_count, height))
+        ck = cycles[k]
+        if len(ck) >= 4:
+            diffs = {(a[0] - b[0], a[1] - b[1]) for a, b in zip(ck[-3:], ck[-4:-1])}
+            if len(diffs) == 1:
+                return ck[-4] + diffs.pop()
 
-    while True:
-        xoff = jet(next(jets))
-        if not collision((x + xoff, y), rock, G):
-            x += xoff
-        if dbg:
-            print(xoff)
-            draw(G, rock, (x, y)); input()
-        if collision((x, y - 1), rock, G):
-            height = max(height, y + max([r[1] for r in rock]))
-            for xoff, yoff in rock:
-                G.add((x + xoff, y + yoff))
-            break
-        else:
-            y -= 1
-        if dbg:
-            draw(G, rock, (x, y)); input()
 
-print(height)
+def height_after_cycles_naive(rocks, jets, n):
+    for rock_count, _, _, height in drop_rocks(rocks, jets):
+        if rock_count >= n:
+            return height
+
+
+def height_after_cycles(rocks, jets, n):
+    start_count, start_height, interval_count, interval_height = find_cycle(rocks, jets)
+    intervals, remainder = divmod(n - start_count, interval_count)
+
+    return intervals * interval_height + height_after_cycles_naive(rocks, jets, start_count + remainder)
+
+
+print(height_after_cycles(rocks, jets, 2022))
+print(height_after_cycles(rocks, jets, 1000000000000))
