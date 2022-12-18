@@ -1,10 +1,9 @@
 import sys
+from itertools import product
 
 lines = open(sys.argv[1]).read().splitlines()
+cubes = [tuple([int(c) for c in ln.split(",")]) for ln in lines]
 
-G = set()
-
-total = 0
 
 def neighbors(c):
     x, y, z = c
@@ -15,22 +14,25 @@ def neighbors(c):
     yield (x, y, z - 1)
     yield (x, y, z + 1)
 
-for ln in lines:
-    cube = tuple([int(c) for c in ln.split(",")])
-    total += 6
-    for n in neighbors(cube):
-        if n in G:
-            total -= 2
-    G.add(cube)
 
+def add_cubes(g, cubes):
+    total = 0
+    for cube in cubes:
+        total += 6
+        for n in neighbors(cube):
+            if n in g:
+                total -= 2
+        g.add(cube)
+    return total
+
+G = set()
+total = add_cubes(G, cubes)
 print(total)
 
-minx, maxx = min([c[0] for c in G]), max([c[0] for c in G])
-miny, maxy = min([c[1] for c in G]), max([c[1] for c in G])
-minz, maxz = min([c[2] for c in G]), max([c[2] for c in G])
+ranges = [(min(c[i] for c in G), max(c[i] for c in G)) for i in range(3)]
 
 
-def touches_outside(n):
+def find_bubble(n):
     q = [n]
     seen = set()
     while q:
@@ -38,28 +40,17 @@ def touches_outside(n):
         if c in G or c in seen:
             continue
         seen.add(c)
-        if c[0] < minx or c[0] > maxx:
-            return True
-        if c[1] < miny or c[1] > maxy:
-            return True
-        if c[2] < minz or c[2] > maxz:
-            return True
+        for i, (mind, maxd) in enumerate(ranges):
+            if c[i] < mind or c[i] > maxd:
+                return set()
         q.extend(neighbors(c))
-    return False
+    return seen
 
 
-bubbles = []
-for x in range(minx, maxx + 1):
-    for y in range(miny, maxy + 1):
-        for z in range(minz, maxz + 1):
-            c = (x, y, z)
-            if c not in G and not touches_outside(c):
-                bubbles.append(c)
+bubbles = set()
+for c in product(*[range(*r) for r in ranges]):
+    if c not in G and c not in bubbles:
+        bubbles |= find_bubble(c)
 
-for b in bubbles:
-    total += 6
-    for n in neighbors(b):
-        if n in G:
-            total -= 2
-    G.add(b)
-print(total)
+
+print(total + add_cubes(G, bubbles))
