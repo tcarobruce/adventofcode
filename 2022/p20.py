@@ -7,14 +7,24 @@ class Node:
         self.value = value
         self.order = None
 
+
+first = None
 last = None
-nodes = []
+zero = None
+orig = []
+
+
 for num in nums:
     node = Node(num)
-    nodes.append(node)
+    if not first:
+        first = node
+    if zero is None and num == 0:
+        zero = node
+    orig.append(node)
     if last is not None:
         last.order = node
     last = node
+
 
 def mix(nodes, first):
     node = first
@@ -27,40 +37,22 @@ def mix(nodes, first):
         node = node.order
     return nodes
 
-nodes = mix(nodes, nodes[0])
 
-tot = 0
-for zero_pos, node in enumerate(nodes):
-    if node.value == 0:
-        break
+nodes = mix(orig, first)
 
-for n in [1000, 2000, 3000]:
-    tot += nodes[(n + zero_pos) % len(nodes)].value
 
-print(tot)
+def score(nodes, zero):
+    zero_pos = nodes.index(zero)
+    return sum([nodes[(n + zero_pos) % len(nodes)].value for n in [1000, 2000, 3000]])
 
-last = None
-first = None
-nodes = []
+print(score(nodes, zero))
+
 key = 811589153
-for num in nums:
-    node = Node(num * key)
-    if first is None:
-        first = node
-    nodes.append(node)
-    if last is not None:
-        last.order = node
-    last = node
+for node in orig:
+    node.value *= key
 
-
+nodes = orig
 for _ in range(10):
     nodes = mix(nodes, first)
 
-tot = 0
-for zero_pos, node in enumerate(nodes):
-    if node.value == 0:
-        break
-
-for n in [1000, 2000, 3000]:
-    tot += nodes[(n + zero_pos) % len(nodes)].value
-print(tot)
+print(score(nodes, zero))
