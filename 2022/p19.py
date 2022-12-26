@@ -21,6 +21,12 @@ for ns in nums:
 def add(a, b):
     return tuple([x + y for x, y in zip(a, b)])
 
+def addi(a, i):
+    # add one to tuple at i
+    l = list(a)
+    l[i] += 1
+    return tuple(l)
+
 def sub(a, b):
     return tuple([x - y for x, y in zip(a, b)])
 
@@ -32,24 +38,35 @@ def lte(a, b):
 def dfs(minute, robots, stores):
     if minute == 0:
         return stores[-1]
-    if minute == 15:
-        print(stores[-1])
 
     minute -= 1
     new_stores = add(robots, stores)
     subs = []
-    for i, cost in enumerate(costs):
+    if lte(costs[-1], stores):
+        return dfs(minute, addi(robots, -1), sub(new_stores, costs[-1]))
+    if lte(costs[-2], stores):
+        return dfs(minute, addi(robots, -2), sub(new_stores, costs[-2]))
+    for i, cost in enumerate(costs[:2]):
         if lte(cost, stores):
-            r = [0, 0, 0, 0]
-            r[i] = 1
-            subs.append(dfs(minute, add(robots, r), sub(new_stores, cost)))
+            subs.append(dfs(minute, addi(robots, i), sub(new_stores, cost)))
     subs.append(dfs(minute, robots, new_stores))
     return max(subs)
 
+
 total = 0
 for id, costs in blueprints.items():
-    result = dfs(26, (1, 0, 0, 0), (0, 0, 0, 0))
+    dfs.cache_clear()
+    result = dfs(24, (1, 0, 0, 0), (0, 0, 0, 0))
     print(id, result)
     total += id * result
+
+print(total)
+
+total = 1
+for id, costs in blueprints.items():
+    dfs.cache_clear()
+    result = dfs(32, (1, 0, 0, 0), (0, 0, 0, 0))
+    print(id, result)
+    total *= result
 
 print(total)
