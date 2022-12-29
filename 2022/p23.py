@@ -74,13 +74,18 @@ def draw(grid):
         print()
 
 
-draw(elves)
-print()
-for i in range(10):
-    elves = round(i, elves, moves)
-    draw(elves)
-    print()
-    #input()
+i = 0
+while True:
+    #draw(elves); print()
+    new_elves = round(i, elves, moves)
+    i += 1
+    if new_elves == elves:
+        print(i)
+        break
 
-xs, ys = ranges(elves)
-print((xs[1] + 1 - xs[0]) * (ys[1] + 1 - ys[0]) - len(elves))
+    elves = new_elves
+    if i == 10:
+        xs, ys = ranges(elves)
+        print((xs[1] + 1 - xs[0]) * (ys[1] + 1 - ys[0]) - len(elves))
+
+#draw(elves)
