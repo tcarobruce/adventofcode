@@ -32,7 +32,6 @@ for y, row in enumerate(lines):
 
 WIDTH = x
 HEIGHT = y
-print(START, END)
 
 
 def open_neighbors(pos, g):
@@ -89,8 +88,8 @@ def draw(g, pos):
         print()
 
 
-def find_path_length(start, end):
-    q = [(dist(start, end), 0, start)]
+def find_path_length(start, end, start_minute=0):
+    q = [(dist(start, end), start_minute, start)]
     seen = {q[0]}
     while True:
         n = heappop(q)
@@ -112,5 +111,9 @@ def find_path_length(start, end):
             seen.add(n)
             heappush(q, n)
 
-#print(memo)
-print(find_path_length(START, END))
+
+there = find_path_length(START, END)
+print(there)
+back = find_path_length(END, START, start_minute=there)
+there_again = find_path_length(START, END, start_minute=back)
+print(there_again)
