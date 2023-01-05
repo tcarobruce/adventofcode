@@ -2,7 +2,6 @@ import re
 import sys
 from functools import cache
 from math import ceil, prod
-from heapq import heappop, heappush
 
 # blueprint_id, ore_ore, cl_ore, obs_ore, obs_clay, ge_ore, ge_obs
 "Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian."
@@ -18,6 +17,7 @@ for ns in nums:
         (obs_ore, obs_clay, 0, 0),
         (ge_ore, 0, ge_obs, 0),
     )
+
 
 def buildnext(cost, robots, stores):
     # try to build the next robot of given cost,
@@ -37,73 +37,8 @@ def buildnext(cost, robots, stores):
         stores[i] - cost[i] + (robots[i] * minutes_needed)
         for i in range(4)
     ])
-    if 0:
-        print("robot: %s cost: %s" % (robot_idx, cost))
-        print("stores", stores, "-", cost, "=", sub(cost, stores))
-        print(robots, "x", minutes_needed, "-", cost, "=", new_stores)
-        print()
     return minutes_needed, new_stores
 
-
-def find_best_orig(total_minutes, costs):
-    # minutes, negative geodes, robots, stores
-    q = [(0, 0, (1, 0, 0, 0), (0, 0, 0, 0))]
-    seen = {}
-    progress = 0
-    best = 0
-    max_robots = [max([c[i] for c in costs]) for i in range(3)]
-    max_robots.append(100000000)  # never too many geode robos
-    while q:
-        minutes, geodes, robots, stores = heappop(q)
-        if minutes > progress:
-            #print(minutes, best)
-            progress = minutes
-        #print(minutes, geodes, -potential, best, robots, stores, len(q))
-        if minutes == total_minutes:
-            return -geodes, minutes, robots, stores
-
-        best = max(best, -geodes)
-        if -geodes > best:
-            best = -geodes
-
-        # heuristic: assuming we build a geode robot each remaining turn, what's the max potential geodes
-        # if it's less than our current best, bail
-        potential = stores[3] + sum(range(robots[3], total_minutes - minutes + robots[3]))
-        if potential < best:
-            continue
-
-        built_one = False
-        for robot_idx in range(4):
-            if robots[robot_idx] >= max_robots[robot_idx]:
-                continue
-            built = buildnext(costs[robot_idx], robots, stores)
-            if built is None:
-                continue
-            mins, new_stores = built
-            mins += minutes
-            if mins > total_minutes:
-                continue
-            new_geodes = geodes
-            if robot_idx == 3:
-                new_geodes -= total_minutes - mins
-            new_robots = tuple((r + int(i == robot_idx)) for i, r in enumerate(robots))
-            key = (new_robots, new_stores)
-            seen_mins = seen.get(key)
-            if seen_mins is not None and seen_mins <= mins:
-                continue
-            seen[key] = mins
-
-            heappush(q, (mins, new_geodes, new_robots, new_stores))
-            built_one = True
-
-        if not built_one and -geodes >= best:
-            # fine to do nothing if you're the best
-            heappush(q, (total_minutes, geodes, robots, stores))
-        # print(q)
-        # input()
-    return [0]
-
-#@cache
 
 max_robots = None
 costs = None
@@ -162,13 +97,10 @@ for id, costs in blueprints.items():
 
 print(total)
 
-
-results = []
-for id, costs in blueprints.items():
-    if id > 3:
-        break
+total = 1
+for id, costs in list(blueprints.items())[:3]:
     result = find_best(32, costs)
     print(id, result)
-    results.append(result[0])
+    total *= result[0]
 
-print(prod(results))
+print(total)
