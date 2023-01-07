@@ -1,5 +1,6 @@
 import sys
 import re
+import os
 
 lines = open(sys.argv[1]).read().splitlines()
 
@@ -43,6 +44,7 @@ def advance(pos, facing):
         turn = None
     else:
         new_pos, turn = warped
+    #print(new_pos, turn)
     dest = grid[new_pos]
     if dest == ".":
         pos = new_pos
@@ -97,6 +99,8 @@ miny = min(ys)
 maxy = max(ys)
 
 def draw(pos, facing):
+    return
+    os.system("clear")
     moves[pos] = f[directions.index(facing)]
     for y in range(miny, maxy + 1):
         for x in range(minx, maxx + 1):
@@ -133,6 +137,42 @@ if sys.argv[1] == "p22_test.txt":
     zip_edges(
         [(x, 12) for x in reversed(range(13, 17))], (0, 1), "L",  # 6B
         [(1, y) for y in range(5, 9)], (-1, 0), "R",  # 2L
+    )
+
+elif sys.argv[1] == "p22_input.txt":
+    """
+     12
+     3
+    45
+    6
+    """
+    zip_edges(
+        [(x, 50) for x in range(101, 151)], (0, 1), "R", # 2B
+        [(100, y) for y in range(51, 101)], (1, 0), "L", # 3R
+    )
+    zip_edges(
+        [(150, y) for y in range(1, 51)], (1, 0), "O", # 2R
+        [(100, y) for y in reversed(range(101, 151))], (1, 0), "O", # 5R
+    )
+    zip_edges(
+        [(51, y) for y in range(51, 101)], (-1, 0), "L", # 3L
+        [(x, 101) for x in range(1, 51)], (0, -1), "R", # 4T
+    )
+    zip_edges(
+        [(51, y) for y in range(1, 51)], (-1, 0), "O", # 1L
+        [(1, y) for y in reversed(range(101, 151))], (-1, 0), "O", # 4L
+    )
+    zip_edges(
+        [(x, 150) for x in range(51, 101)], (0, 1), "R", # 5B
+        [(50, y) for y in range(151, 201)], (1, 0), "L", # 6R
+    )
+    zip_edges(
+        [(1, y) for y in range(151, 201)], (-1, 0), "L", # 6L
+        [(x, 1) for x in range(51, 101)], (0, -1), "R", # 1T
+    )
+    zip_edges(
+        [(x, 200) for x in range(1, 51)], (0, 1), None, # 6B
+        [(x, 1) for x in range(101, 151)], (0, -1), None, # 2T
     )
 
 
