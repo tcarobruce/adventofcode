@@ -35,6 +35,17 @@ class Vec:
         assert self.dims == other.dims
         return sqrt(sum([(a - b)**2 for a, b in zip(self.els, other.els)]))
 
+    @classmethod
+    def extent(cls, vecs):
+        vecs = iter(vecs)
+        first = next(vecs)
+        mins = cls(*first.els)
+        maxs = cls(*first.els)
+        for vec in vecs:
+            mins = cls(*[min(a, b) for a, b in zip(mins.els, vec.els)])
+            maxs = cls(*[max(a, b) for a, b in zip(maxs.els, vec.els)])
+        return mins, maxs
+
 
 class Tree:
     def __init__(self, value):
