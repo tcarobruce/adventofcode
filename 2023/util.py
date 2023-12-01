@@ -1,5 +1,6 @@
 from math import sqrt
 from collections import deque
+from itertools import product
 import re
 
 
@@ -34,6 +35,14 @@ class Vec:
     def distance(self, other):
         assert self.dims == other.dims
         return sqrt(sum([(a - b)**2 for a, b in zip(self.els, other.els)]))
+
+    def neighbors(self):
+        offsets = [[d - 1, d, d + 1] for d in self.els]
+        for p in product(*offsets):
+            v = Vec(*p)
+            if v == self:
+                continue
+            yield v
 
     @classmethod
     def extent(cls, vecs):
