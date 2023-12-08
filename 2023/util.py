@@ -1,7 +1,10 @@
-from math import sqrt
+from math import sqrt, prod
 from collections import deque
 from itertools import product
+from operator import and_, or_
+from functools import reduce
 import re
+import pyprimesieve
 
 
 class Vec:
@@ -76,3 +79,19 @@ class Tree:
 
 def readints(line):
     return [int(m) for m in re.findall(r"-?[\d]+", line)]
+
+
+def gcd(*nums):
+    factors = [dict(pyprimesieve.factorize(n)) for n in nums]
+    return prod(
+        pf**min(fs.get(pf, 0) for fs in factors)
+        for pf in reduce(and_, (fs.keys() for fs in factors))
+    )
+
+
+def lcm(*nums):
+    factors = [dict(pyprimesieve.factorize(n)) for n in nums]
+    return prod(
+        pf**max(fs.get(pf, 0) for fs in factors)
+        for pf in reduce(or_, (fs.keys() for fs in factors))
+    )

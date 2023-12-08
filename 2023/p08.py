@@ -2,6 +2,7 @@ import sys
 import re
 from itertools import cycle
 from math import prod
+from util import lcm
 
 lines = [ln.strip() for ln in open(sys.argv[1])]
 
@@ -23,6 +24,11 @@ while node != "ZZZ":
 # p1
 print(count)
 
+# For part 2:
+# Running through every step will take a long time.
+# By observation, there are cycles, and they
+# start at 0. (This happens to be true for this problem,
+# but is not guaranteed.)
 
 nodes = [n for n in M if n[-1] == "A"]
 
@@ -31,7 +37,7 @@ intervals = {}
 firsts = {}
 count = 0
 turns = cycle(lines[0])
-while any(n[-1] != "Z" for n in nodes):
+while len(intervals) < len(nodes):
     for i, n in enumerate(nodes, 1):
         if n[-1] == "Z":
             k = (i, n)
@@ -41,15 +47,12 @@ while any(n[-1] != "Z" for n in nodes):
             if i not in firsts:
                 firsts[i] = count
             zhits[k] = count
+
     count += 1
     turn = next(turns)
     nodes = [M[node][turn == "R"] for node in nodes]
 
-    if len(intervals) == 6:
-        break
 
-print(intervals, firsts)
-r = 293
-for v in intervals.values():
-    r *= (v.pop() // 293)
-print(r)
+print(intervals)
+print(firsts)
+print(lcm(*(next(iter(s)) for s in intervals.values())))
