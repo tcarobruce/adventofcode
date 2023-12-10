@@ -5,11 +5,10 @@ from collections import defaultdict
 
 G = defaultdict(lambda: '.')
 S = None
-for y, line in enumerate(open(sys.argv[1])):
-    for x, c in enumerate(line.strip()):
-        if c == ".":
-            continue
-        elif c == "S":
+lines = [ln.strip() for ln in open(sys.argv[1])]
+for y, line in enumerate(lines):
+    for x, c in enumerate(line):
+        if c == "S":
             S = Vec(x, y)
         G[Vec(x, y)] = c
 
@@ -67,22 +66,54 @@ af = follow(apos, S)
 bf = follow(bpos, S)
 count = 0
 
-seen = {S}
+loop = {S}
 
 while True:
     count += 1
     apos = next(af)
     bpos = next(bf)
-    print(apos, bpos)
 
     if apos == bpos:
         print(f"Same spot at {count}!")
+        loop.add(apos)
         break
-    elif apos in seen or bpos in seen:
-        print(seen, apos, bpos)
+    elif apos in loop or bpos in loop:
         print(f"already seen at {count}!")
+        loop.add(apos)
+        loop.add(bpos)
         break
-    seen.add(apos)
-    seen.add(bpos)
+    loop.add(apos)
+    loop.add(bpos)
 
+enclosed = 0
+for y, line in enumerate(lines):
+    inloop = False
+    bias = None
+    #print(y, line)
+    for x, c in enumerate(line):
+        if c == "S":
+            c = sys.argv[2]
+        if Vec(x, y) in loop:
+            if c == "|":
+                inloop = not inloop
+            elif c == "L":
+                assert not bias
+                bias = "J"
+            elif c == "F":
+                assert not bias
+                bias = "7"
+            elif c == "J":
+                assert bias
+                if c != bias:
+                    inloop = not inloop
+                bias = None
+            elif c == "7":
+                assert bias
+                if c != bias:
+                    inloop = not inloop
+                bias = None
+        elif inloop:
+            enclosed += 1
+            #print((x, y), G[Vec(x, y)])
 
+print(enclosed)
