@@ -3,40 +3,16 @@ import sys
 lines = [ln.strip() for ln in open(sys.argv[1])]
 
 def expand(image):
-    to_expand_x = set(range(len(image[0])))
-    for ln in image:
+    expand_x = set(range(len(image[0])))
+    expand_y = set(range(len(image)))
+    for y, ln in enumerate(image):
         for x, c in enumerate(ln):
             if c != ".":
-                to_expand_x.discard(x)
-    expanded_x = []
-    for ln in image:
-        new_line = ""
-        for x, c in enumerate(ln):
-            if x in to_expand_x:
-                new_line += "."
-            new_line += c
-        expanded_x.append(new_line)
-    expanded_y = []
-    for ln in expanded_x:
-        if set(ln) == {"."}:
-            expanded_y.append(ln)
-        expanded_y.append(ln)
-    return expanded_y
+                expand_x.discard(x)
+                expand_y.discard(y)
+    return expand_x, expand_y
 
-
-def neighbors_constrained(loc):
-    x, y = loc
-    if y > 0:
-        yield (x, y - 1)
-    if x < len(lines[0]) - 1:
-        yield (x + 1, y)
-    if y < len(lines) - 1:
-        yield (x, y + 1)
-    if x > 0:
-        yield (x - 1, y)
-
-
-def shortest_paths(image):
+def shortest_paths(image, expand_x, expand_y, expansion_factor):
     galaxies = []
     for y, ln in enumerate(image):
         for x, c in enumerate(ln):
@@ -47,9 +23,18 @@ def shortest_paths(image):
     for i, galaxy in enumerate(galaxies):
         for j, other in enumerate(galaxies[i:]):
             dist = abs(galaxy[0] - other[0]) + abs(galaxy[1] - other[1])
-            print(i, j, dist)
+            for expand in expand_x:
+                if min(galaxy[0], other[0]) < expand < max(galaxy[0], other[0]):
+                    dist += expansion_factor - 1
+            for expand in expand_y:
+                if min(galaxy[1], other[1]) < expand < max(galaxy[1], other[1]):
+                    dist += expansion_factor - 1
             total += dist
     return total
 
 
-print(shortest_paths(expand(lines)))
+expand_x, expand_y = expand(lines)
+print(shortest_paths(lines, expand_x, expand_y, 2))
+print(shortest_paths(lines, expand_x, expand_y, 10))
+print(shortest_paths(lines, expand_x, expand_y, 100))
+print(shortest_paths(lines, expand_x, expand_y, 1000000))
