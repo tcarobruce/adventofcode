@@ -1,9 +1,11 @@
 import sys
 
 from util import *
+from functools import cache
 
 lines = [ln.strip().split() for ln in open(sys.argv[1])]
-lines = [(ln[0], readints(ln[1])) for ln in lines]
+lines = [(ln[0], tuple(readints(ln[1]))) for ln in lines]
+mult_lines = [('?'.join([s] * 5), sum([patt] * 5, ())) for s, patt in lines]
 
 
 def try_chomp(s, pattern):
@@ -15,6 +17,7 @@ def try_chomp(s, pattern):
         return 0
 
 
+@cache
 def ways(s, pattern):
     if not pattern:
         return set(s) <= set(".?")
@@ -30,8 +33,18 @@ def ways(s, pattern):
     assert False, f"oops '{c}'"
 
 
+# p1
 tot = 0
 for s, pattern in lines:
+    w = ways(s, pattern)
+    tot += w
+    print(s, pattern, w)
+
+print(tot)
+
+# p2
+tot = 0
+for s, pattern in mult_lines:
     w = ways(s, pattern)
     tot += w
     print(s, pattern, w)
