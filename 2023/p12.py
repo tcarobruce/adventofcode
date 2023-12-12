@@ -9,7 +9,7 @@ lines = [(ln[0], readints(ln[1])) for ln in lines]
 def try_chomp(s, pattern):
     amt = pattern[0]
     next_bit = s[:amt]
-    if len(next_bit) == amt and set(next_bit) <= {"#", "?"} and (len(s) == amt or s[amt] in '.?'):
+    if len(next_bit) == amt and set(next_bit) <= set("#?") and (len(s) == amt or s[amt] in '.?'):
         return ways(s[amt + 1:], pattern[1:])
     else:
         return 0
@@ -17,7 +17,7 @@ def try_chomp(s, pattern):
 
 def ways(s, pattern):
     if not pattern:
-        return 1
+        return set(s) <= set(".?")
     elif not s:
         return 0
     c = s[0]
