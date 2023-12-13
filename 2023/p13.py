@@ -30,13 +30,6 @@ def find_reflections(lines):
     for reflection in find_reflection_vert(lines):
         yield False, reflection
 
-# def find_reflection(lines):
-#     h = find_reflection_horiz(lines)
-#     if h:
-#         return 100 * h
-#     return find_reflection_vert(lines)
-
-
 def perturb(lines):
     m = {"#": ".", ".": "#"}
     for i, line in enumerate(lines):
@@ -44,38 +37,6 @@ def perturb(lines):
             nl = line[:j] + m[c] + line[j+1:]
             yield lines[:i] + [nl] + lines[i+1:]
 
-# for pattern in patterns:
-#     lines = pattern.split()
-#     for i, modification in enumerate(perturb(lines)):
-#         os.system("clear")
-#         print(f"ORIG {len(lines[0])} x {len(lines)} = {len(lines[0]) * len(lines)}")
-#         print("\n".join(lines))
-#         print(i)
-#         print("\n".join(modification))
-#         input()
-
-# lines = """
-# ..##..##...
-# ..#.##.#.##
-# ...#.#.#...
-# ##.#.####..
-# ...###.#.##
-# ######.#.##
-# ######..#.#
-# """.strip().split()
-
-# #print(find_reflection(lines))
-
-# for i, modification in enumerate(perturb(lines)):
-#     os.system("clear")
-#     print(f"ORIG {len(lines[0])} x {len(lines)} = {len(lines[0]) * len(lines)}")
-#     print("\n".join(lines))
-#     print(i)
-#     print("\n".join(modification))
-#     print()
-#     print("\n".join(rot_right(modification)))
-#     #print(find_reflection(modification))
-#     input()
 
 tot = 0
 p2_tot = 0
@@ -104,4 +65,3 @@ for i, pattern in enumerate(patterns):
 
 print(tot)
 print(p2_tot)
-
