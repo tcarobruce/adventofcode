@@ -2,11 +2,15 @@ from math import sqrt, prod
 from collections import deque
 from itertools import product
 from operator import and_, or_
-from functools import reduce
+from functools import reduce, total_ordering
 import re
-import pyprimesieve
+try:
+    import pyprimesieve
+except ImportError:
+    pass
 
 
+@total_ordering
 class Vec:
     def __init__(self, *els):
         self.els = els
@@ -17,6 +21,9 @@ class Vec:
 
     def __eq__(self, other):
         return self.els == other.els
+
+    def __lt__(self, other):
+        return self.els < other.els
 
     def __hash__(self):
         return hash(self.els)
@@ -38,6 +45,14 @@ class Vec:
     def distance(self, other):
         assert self.dims == other.dims
         return sqrt(sum([(a - b)**2 for a, b in zip(self.els, other.els)]))
+
+    def rotate_cw(self):
+        assert self.dims == 2
+        return Vec(-self.els[1], self.els[0])
+
+    def rotate_ccw(self):
+        assert self.dims == 2
+        return Vec(self.els[1], -self.els[0])
 
     def neighbors(self):
         offsets = [[d - 1, d, d + 1] for d in self.els]
