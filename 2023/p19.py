@@ -54,7 +54,7 @@ def ways(rules, ranges=None, label="in"):
     if ranges is None:
         ranges = {c: [range(1, 4001)] for c in 'xmas'}
     if label == "A":
-        print(ranges)
+        #print(ranges)
         return prod([
             sum([len(r) for r in rs])
             for rs in ranges.values()
@@ -76,11 +76,6 @@ def ways(rules, ranges=None, label="in"):
         total += ways(rules, ranges=follow_label_ranges, label=next_label)
 
     return total + ways(rules, ranges=ranges, label=rule["else"])
-
-# from pprint import pprint
-# pprint(rules)
-# pprint(parts)
-
 
 print(sum([sum(p.values()) for p in parts if is_accepted(p, rules)]))
 print(ways(rules))
