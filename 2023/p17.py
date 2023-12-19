@@ -42,7 +42,6 @@ def traverse2():
     seen = set()
 
     while True:
-        print(q[0])
         heat_loss, pos, velocity, conseq = heappop(q)
         if pos == dest:
             return heat_loss

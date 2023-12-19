@@ -73,6 +73,12 @@ class Vec:
             maxs = cls(*[max(a, b) for a, b in zip(maxs.els, vec.els)])
         return mins, maxs
 
+    def in_extent(self, mins, maxs):
+        for mi, e, ma in zip(mins.els, self.els, maxs.els):
+            if not (mi <= e <= ma):
+                return False
+        return True
+
 
 class Tree:
     def __init__(self, value):
