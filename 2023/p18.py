@@ -23,6 +23,29 @@ dig_plan2 = [
     for _, _, color in lines
 ]
 
+def vertices(plan):
+    pos = V(0, 0)
+    for direction, count in plan:
+        pos += direction * count
+        yield pos, count
+
+
+def shoelace(plan):
+    last = start = V(0, 0)
+    length = 0
+    area = 0
+    for pos, count in vertices(plan):
+        area += (pos.els[1] + last.els[1]) * (last.els[0] - pos.els[0])
+        length += count
+        last = pos
+    area += (start.els[1] + last.els[1]) * (last.els[0] - start.els[0])
+    area += length + 2
+    return area // 2
+
+print(shoelace(dig_plan))
+print(shoelace(dig_plan2))
+
+
 def find_horizontal_segments(plan):
     segs = []
     pos = V(0, 0)
