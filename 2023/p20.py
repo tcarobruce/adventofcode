@@ -5,6 +5,7 @@ L, H = "low", "high"
 
 lines = [ln.strip() for ln in open(sys.argv[1])]
 M = {}
+MEM = {}
 for line in lines:
     module, dests = line.split(" -> ")
     if module == "broadcaster":
@@ -14,16 +15,17 @@ for line in lines:
     dests = dests.split(", ")
     for dest in dests:
         M.setdefault(dest, ("output", []))
+        MEM.setdefault(dest, {})[module] = L
     M[module] = (type, dests)
 
 STATE = {m: False for m in M if M[m][0] == "%"}
-MEM = {m: defaultdict(lambda: L) for m in M if M[m][0] == "&"}
 
 def process_pulse():
     q = deque([("broadcaster", L, "button")])
     sent = Counter()
     while q:
         module, pulse, sender = q.popleft()
+        #print(f"{sender} -{pulse}-> {module}")
         sent[pulse] += 1
         type, dests = M[module]
         if type == "broadcaster":
@@ -41,9 +43,8 @@ def process_pulse():
     return sent
 
 total = Counter()
+
 for _ in range(1000):
     total += process_pulse()
-
-# 725407118 too high
 
 print(total, total[L] * total[H])
