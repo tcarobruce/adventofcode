@@ -3,6 +3,8 @@ from util import Vec as V
 from collections import deque
 from functools import cache
 
+sys.setrecursionlimit(10000)
+
 lines = [ln.strip() for ln in open(sys.argv[1])]
 
 G = {}
@@ -31,72 +33,38 @@ def dfs(g, start, finish, visited=None):
     if start not in visited:
         visited = visited | {start}
 
-        print(start, len(visited))
-
-        if start == finish:
-            yield len(visited)
-        else:
-            #print(start, len(visited))
-
-            c = g.get(start)
-            if c is None or c == "#":
-                pass
-            elif c == ".":
-                for n in start.neighbors():
-                    yield from dfs(g, n, finish, visited)
-            elif c in DIRS:
-                yield from dfs(g, start + DIRS[c], finish, visited | {start + DIRS[c]})
-
-def dfs(g, start, finish, visited=None):
-    if visited is None:
-        visited = set()
-
-    if start not in visited:
-        visited = visited | {start}
-
         #print(start, len(visited))
 
         if start == finish:
             yield visited
         else:
             c = g.get(start)
-            while c in DIRS:
-                start = start + DIRS[c]
-                visited = visited | {start}
-                c = g.get(start)
             if c is None or c == "#":
                 pass
+            elif c in DIRS:
+                n = start + DIRS[c]
+                yield from dfs(g, n, finish, visited)
             elif c == ".":
                 for n in start.neighbors():
                     yield from dfs(g, n, finish, visited)
 
-
-def find_all_paths(g, start, finish):
-    q = deque([[start]])
-
-    while q:
-        path = q.popleft()
-        last = path[-1]
-        if last == finish:
-            yield path
-        else:
-            for node in last.neighbors():
-                if node in path:
-                    continue
-                c = g.get(node)
-                if c is None or c == "#":
-                    continue
-                if c in DIRS:
-                    q.append(path + [node, node + DIRS[c]])
-                if c == ".":
-                    q.append(path + [node])
-
+def draw(g, path):
+    for y, ln in enumerate(lines):
+        for x, c in enumerate(ln):
+            v = V(x, y)
+            if v in path:
+                c = "O"
+            else:
+                c = g[v]
+            print(c, end='')
+        print()
 
 max_walk = 0
 for path in dfs(G, START, FINISH):
-    print(path)
-    l = len(path)
+    #print(path)
+    l = len(path) - 1  # steps is # of nodes - 1
     max_walk = max(max_walk, l)
+    #draw(G, path)
     print(l)
 
 print(max_walk)
