@@ -55,6 +55,10 @@ class Vec:
         return Vec(self.els[1], -self.els[0])
 
     def neighbors(self):
+        assert self.dims == 2
+        return [self + v for v in [Vec(1, 0), Vec(0, 1), Vec(-1, 0), Vec(0, -1)]]
+
+    def neighbors_diag(self):
         offsets = [[d - 1, d, d + 1] for d in self.els]
         for p in product(*offsets):
             v = Vec(*p)
