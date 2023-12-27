@@ -41,10 +41,10 @@ def dfs(g, start, finish, visited=None):
             c = g.get(start)
             if c is None or c == "#":
                 pass
-            elif c in DIRS:
-                n = start + DIRS[c]
-                yield from dfs(g, n, finish, visited)
-            elif c == ".":
+            # elif c in DIRS:
+            #     n = start + DIRS[c]
+            #     yield from dfs(g, n, finish, visited)
+            elif c == "." or c in DIRS:
                 for n in start.neighbors():
                     yield from dfs(g, n, finish, visited)
 
