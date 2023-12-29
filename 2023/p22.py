@@ -10,12 +10,12 @@ for i, line in enumerate(lines, 1):
     ints = readints(line)
     a, b = V.extent([V(*ints[:3]), V(*ints[3:])])
     #b = b + V(1, 1, 1)  # make interval open on right
+    #i = ascii_uppercase[i-1]
     BRICKS[i] = (a, b)
-    #BRICKS[ascii_uppercase[i-1]] = (a, b)
 
 
 def ranges_overlap(a, b):
-    return max(a[0], b[0]) >= min(a[1], b[1])
+    return max(a[0], b[0]) <= min(a[1], b[1])
 
 
 def overlap_xy(a, b, dims=[0, 1]):
