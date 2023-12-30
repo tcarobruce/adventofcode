@@ -2,7 +2,8 @@ import sys
 from util import readints, Vec as V
 from string import ascii_uppercase
 from collections import Counter
-from functools import cache
+#from functools import cache
+from heapq import heappop, heappush
 
 lines = [ln.strip() for ln in open(sys.argv[1])]
 
@@ -11,7 +12,8 @@ for i, line in enumerate(lines, 1):
     ints = readints(line)
     a, b = V.extent([V(*ints[:3]), V(*ints[3:])])
     #b = b + V(1, 1, 1)  # make interval open on right
-    #i = ascii_uppercase[i-1]
+    if len(lines) < 26:
+        i = ascii_uppercase[i-1]
     BRICKS[i] = (a, b)
 
 
@@ -28,20 +30,20 @@ def overlap_xy(a, b, dims=[0, 1]):
     )
 
 
-def height(brick):
-    brick = BRICKS[brick]
-    return brick[1].els[2] - brick[0].els[2] + 1
-
-
 def drop(terrain, dependencies, brick):
-    new_h = height(brick)
+    floor = 0
     for alt, bricks in sorted(terrain.items(), reverse=True):
         overlaps = [b for b in bricks if overlap_xy(brick, b)]
         if overlaps:
             dependencies[brick] = overlaps
-            new_h += alt
+            floor = alt
             break
-    terrain.setdefault(new_h, []).append(brick)
+
+    b = BRICKS[brick]
+    offset = V(0, 0, b[0].els[2] - floor - 1)
+    bottom, top = BRICKS[brick]
+    BRICKS[brick] = (bottom - offset, top - offset)
+    terrain.setdefault(BRICKS[brick][1].els[2], []).append(brick)
 
 
 def drop_many(bricks):
@@ -70,27 +72,20 @@ for depender, supporters in dependencies.items():
     for supporter in supporters:
         supports.setdefault(supporter, []).append(depender)
 
-print(dependencies)
-print(supports)
-
-@cache
-def _chain_reaction(brick, falling_t=None):
-    if falling_t is None:
-        falling_t = ()
-    falling = set(falling_t) | {brick}
-    new_falling = set()
-    for dep in supports.get(brick, []):
-        if not set(dependencies[dep]) - falling:
-            new_falling.add(dep)
-    if new_falling:
-        falling.update(new_falling)
-        falling_t = tuple(sorted(falling))
-        for dep in new_falling:
-            falling.update(_chain_reaction(dep, falling_t=falling_t))
-    return falling
-
-def chain_reaction_length(brick):
-    return len(_chain_reaction(brick) - {brick})
+def chain_reaction(brick):
+    orig = brick
+    falling = set()
+    q = [(BRICKS[brick][0].els[2], brick)]
+    while q:
+        #print(len(q), q)
+        _, brick = heappop(q)
+        if brick != orig and set(dependencies.get(brick, [])) - falling:
+            # still supported
+            continue
+        falling.add(brick)
+        for dep in supports.get(brick, []):
+            heappush(q, (BRICKS[dep][0].els[2], dep))
+    return falling - {orig}
 
 
-print(sum([chain_reaction_length(b) for b in BRICKS]))
+print(sum([len(chain_reaction(b)) for b in BRICKS]))
