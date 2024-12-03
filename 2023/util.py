@@ -46,6 +46,10 @@ class Vec:
         assert self.dims == other.dims
         return sqrt(sum([(a - b)**2 for a, b in zip(self.els, other.els)]))
 
+    def manhattan(self, other):
+        assert self.dims == other.dims
+        return sum([abs(x - y) for x, y in zip(self.els, other.els)])
+
     def rotate_cw(self):
         assert self.dims == 2
         return Vec(-self.els[1], self.els[0])
