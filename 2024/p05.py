@@ -1,5 +1,6 @@
 import sys
 from collections import defaultdict
+from functools import cmp_to_key
 
 text = open(sys.argv[1]).read()
 rules_text, updates_text = text.strip().split("\n\n")
@@ -23,8 +24,29 @@ def update_valid(pages, rules):
     return True
 
 tot = 0
+wrong = []
 for pages in updates:
     if update_valid(pages, rules):
         tot += int(pages[len(pages)//2])
+    else:
+        wrong.append(pages)
+
+print(tot)  # p1
+
+
+@cmp_to_key
+def rules_cmp(a, b):
+    if b in rules[a]:
+        return -1
+    elif a in rules[b]:
+        return 1
+    else:
+        return 0
+
+tot = 0
+for w in wrong:
+    fixed = sorted(w, key=rules_cmp)
+    tot += int(fixed[len(fixed)//2])
 
 print(tot)
+
