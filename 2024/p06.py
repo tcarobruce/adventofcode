@@ -8,7 +8,7 @@ by_coord = (
     for y, ln in enumerate(f)
     for x, c in enumerate(ln.strip())
 )
-grid = {}
+GRID = {}
 START = None
 DIRECTION = V(0, -1)
 
@@ -16,10 +16,10 @@ for (x, y), c in by_coord:
     if c == '^':  # only this char is used for starting position
         START = V(x, y)
         c = '.'
-    grid[V(x, y)] = c
+    GRID[V(x, y)] = c
 
 
-def walk(start, direction):
+def walk(grid, start, direction):
     seen = {(start, direction)}
     position = start
     while True:
@@ -37,7 +37,7 @@ def walk(start, direction):
         else:
             raise Exception("Bad place %s at %s!" % (next_position, c))
 
-visited, loop = walk(START, DIRECTION)
+visited, loop = walk(GRID, START, DIRECTION)
 positions = set([v[0] for v in visited])
 ct = len(positions)
 print(ct)
@@ -45,12 +45,9 @@ print(ct)
 tot = 0
 for i, pos in enumerate(positions, 1):
     print(f"{i}/{ct}")
-    assert grid[pos] == '.'
-    grid[pos] = '#'
-    _, loop = walk(START, DIRECTION)
+    _, loop = walk(GRID | {pos: "#"}, START, DIRECTION)
     if loop:
         tot += 1
-    grid[pos] = '.'
 
 print(tot)
 
