@@ -16,6 +16,7 @@ for y, ln in enumerate(f):
             locs[c].append(V(x, y))
 
 antinodes = defaultdict(set)
+antinodes2 = defaultdict(set)
 
 for c, antennae in locs.items():
     for a, b in combinations(antennae, 2):
@@ -26,5 +27,16 @@ for c, antennae in locs.items():
         if grid.get(v2):
             antinodes[v2].add(c)
 
+        v = a - b
+        s = a
+        while grid.get(s):
+            antinodes2[s].add(c)
+            s += v
+        s = a
+        while grid.get(s):
+            antinodes2[s].add(c)
+            s -= v
+
+
 print(len(antinodes))
-#print(antinodes)
+print(len(antinodes2))
