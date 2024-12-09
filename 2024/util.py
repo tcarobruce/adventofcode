@@ -2,12 +2,13 @@ from math import sqrt, prod
 from collections import deque
 from itertools import product
 from operator import and_, or_
-from functools import reduce, total_ordering
+from functools import reduce, total_ordering, partial
 import re
 try:
     import pyprimesieve
 except ImportError:
     pass
+
 
 
 @total_ordering
@@ -124,3 +125,13 @@ def lcm(*nums):
         pf**max(fs.get(pf, 0) for fs in factors)
         for pf in reduce(or_, (fs.keys() for fs in factors))
     )
+
+def readgrid(lines, coord_maker=None):
+    grid = {}
+    for y, ln in enumerate(lines):
+        for x, c in enumerate(ln.strip()):
+            coord = coord_maker(x, y) if coord_maker else (x, y)
+            grid[coord] = c
+    return grid
+
+readgridv = partial(readgrid, coord_maker=Vec)

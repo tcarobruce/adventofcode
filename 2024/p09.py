@@ -1,8 +1,9 @@
 import sys
+from collections import defaultdict
+from heapq import heapify, heappop, heappush
 
 nums = [int(c) for c in open(sys.argv[1]).read().strip()]
 files = [[n, id_no] for id_no, n in enumerate(nums[::2])]
-files2 = [[n, id_no] for id_no, n in enumerate(nums[::2])]
 spaces = [n for n in nums[1::2]]
 
 
@@ -37,31 +38,39 @@ print(checksum)
 pos = 0
 id_no = 0
 files = []
-spaces = []
+spaces_by_size = [list() for _ in range(10)]
 is_file = True
-for n in nums:
+for size in nums:
     if is_file:
-        files.append([pos, n, id_no])
+        files.append([pos, size, id_no])
         id_no += 1
     elif n:
-        spaces.append([pos, n])
-    pos += n
+        spaces_by_size[size].append(pos)
+    pos += size
     is_file = not is_file
 
 
-for i in reversed(range(len(files))):
-    print(i)
-    fpos, f_size, fid = files[i]
-    for j in range(len(spaces)):
-        spos, s_size = spaces[j]
-        if f_size <= s_size:
-            spaces[j][0] += f_size
-            spaces[j][1] -= f_size
-            files[i][0] = spos
+for spaces in spaces_by_size:
+    heapify(spaces)
+
+for f in files[::-1]:
+    fpos, fsize, id_no = f
+    for ssize in range(fsize, 10):
+        spaces = spaces_by_size[ssize]
+        if spaces:
             break
+    else:
+        continue
+    spos = heappop(spaces)
+    f[0] = spos
+    spos += fsize
+    ssize -= fsize
+    if ssize:
+        heappush(spaces_by_size[ssize], spos)
+
 
 checksum = 0
-#files.sort()
+files.sort()
 for fpos, f_size, fid in files:
     for i in range(f_size):
         checksum += fid * (fpos + i)
