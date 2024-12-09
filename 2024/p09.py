@@ -59,7 +59,7 @@ def printout():
     input()
 
 
-printout()
+#printout()
 for f in files[::-1]:
     fpos, fsize, id_no = f
     spaces, ssize = min(
@@ -69,6 +69,8 @@ for f in files[::-1]:
         default=(None, None)
     )
     if spaces is None:
+        continue
+    if spaces[0] >= fpos:
         continue
     spos = heappop(spaces)
     f[0] = spos
@@ -80,9 +82,7 @@ for f in files[::-1]:
         spaces_by_pos[spos] = ssize
     heappush(spaces_by_size[fsize], fpos)
     spaces_by_pos[fpos] = fsize
-    printout()
-
-
+    #printout()
 
 checksum = 0
 #files.sort()
