@@ -36,41 +36,56 @@ while files:
 print(checksum)
 
 pos = 0
-id_no = 0
 files = []
 spaces_by_size = [list() for _ in range(10)]
-is_file = True
-for size in nums:
-    if is_file:
-        files.append([pos, size, id_no])
-        id_no += 1
-    elif n:
+spaces_by_pos = {}
+for i, size in enumerate(nums):
+    if i % 2 == 0:
+        assert size
+        files.append([pos, size, i // 2])
+    elif size:
         spaces_by_size[size].append(pos)
+        spaces_by_pos[pos] = size
     pos += size
-    is_file = not is_file
-
 
 for spaces in spaces_by_size:
     heapify(spaces)
 
+def printout():
+    for f in sorted(files):
+        print(str(f[2]) * f[1], end="")
+        spos = f[0] + f[1]
+        print('.' * spaces_by_pos.get(spos, 0), end="")
+    input()
+
+
+printout()
 for f in files[::-1]:
     fpos, fsize, id_no = f
-    for ssize in range(fsize, 10):
-        spaces = spaces_by_size[ssize]
-        if spaces:
-            break
-    else:
+    spaces, ssize = min(
+        ((spaces_by_size[ssize], ssize)
+        for ssize in range(fsize, 10)
+        if spaces_by_size[ssize]),
+        default=(None, None)
+    )
+    if spaces is None:
         continue
     spos = heappop(spaces)
     f[0] = spos
+    spaces_by_pos.pop(spos)
     spos += fsize
     ssize -= fsize
     if ssize:
         heappush(spaces_by_size[ssize], spos)
+        spaces_by_pos[spos] = ssize
+    heappush(spaces_by_size[fsize], fpos)
+    spaces_by_pos[fpos] = fsize
+    printout()
+
 
 
 checksum = 0
-files.sort()
+#files.sort()
 for fpos, f_size, fid in files:
     for i in range(f_size):
         checksum += fid * (fpos + i)
