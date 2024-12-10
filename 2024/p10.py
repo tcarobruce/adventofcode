@@ -16,23 +16,15 @@ for y, ln in enumerate(open(sys.argv[1])):
 @cache
 def find_trails(pos, val=0):
     if val == 9:
-        return {pos}
-    total = set()
+        return [pos]
+    total = []
     for v in pos.neighbors():
         if grid.get(v) == val + 1:
-            total |= find_trails(v, val=val+1)
-    return total
-
-@cache
-def find_trails2(pos, val=0):
-    if val == 9:
-        return 1
-    total = 0
-    for v in pos.neighbors():
-        if grid.get(v) == val + 1:
-            total += find_trails2(v, val=val+1)
+            total.extend(find_trails(v, val=val+1))
     return total
 
 
-print(sum([len(find_trails(th)) for th in trailheads]))
-print(sum([find_trails2(th) for th in trailheads]))
+trails = [find_trails(th) for th in trailheads]
+
+print(sum([len(set(t)) for t in trails]))
+print(sum([len(t) for t in trails]))
