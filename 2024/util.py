@@ -88,6 +88,12 @@ class Vec:
                 return False
         return True
 
+    def wrap(self, bound):
+        els = []
+        for d, b in zip(self.els, bound.els):
+            els.append(d % b)
+        return Vec(*els)
+
 
 class Tree:
     def __init__(self, value):
