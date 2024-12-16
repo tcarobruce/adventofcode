@@ -38,7 +38,7 @@ def best_path(grid):
     start = [pos for pos, c in grid.items() if c == "S"][0]
     score = 0
     facing = V(1, 0)
-    seen = set([(start, facing)])
+    seen = {(start, facing): 0}
     q = [(score, start, facing)]
 
     while True:
@@ -50,26 +50,34 @@ def best_path(grid):
 
         if grid.get(pos + facing) in '.':
             k = (pos + facing, facing)
-            if k not in seen:
-                heappush(q, (score + 1, pos + facing, facing))
-                seen.add(k)
-                seen.add((pos + facing, V(0, 0) - facing))
+            new_score = score + 1
+            seen_k = seen.get(k)
+            if seen_k is None or seen_k > new_score:
+                heappush(q, (new_score, pos + facing, facing))
+                seen[k] = new_score
+
         ccw = dirs[(dirs.index(facing) - 1) % 4]
         cw = dirs[(dirs.index(facing) + 1) % 4]
 
+        new_score = score + 1000
+
         k = (pos, ccw)
-        if k not in seen:
-            heappush(q, (score + 1000, pos, ccw))
-            seen.add(k)
+        seen_k = seen.get(k)
+        if seen_k is None or seen_k > new_score and grid.get(pos + ccw) != "#":
+            heappush(q, (new_score, pos, ccw))
+            seen[k] = new_score
 
         k = (pos, cw)
-        if k not in seen:
+        seen_k = seen.get(k)
+        if seen_k is None or seen_k > new_score and grid.get(pos + cw) != "#":
             heappush(q, (score + 1000, pos, cw))
-            seen.add(k)
+            seen[k] = new_score
 
         if 0:
             draw(grid, q, seen)
             print(q[0][0])
             input()
+
+
 
 print(best_path(grid))
