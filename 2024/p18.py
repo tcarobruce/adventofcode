@@ -8,21 +8,14 @@ coords = [V(*readints(ln)) for ln in f]
 
 start = V(0, 0)
 end = V(6, 6) if "sample" in sys.argv[1] else V(70, 70)
-
-grid = set()
-for i, v in enumerate(coords, 1):
-    grid.add(v)
-
-    if i == 1024:
-        break
+byte_count = 12 if "sample" in sys.argv[1] else 1024
 
 
 def shortest_path(g, start):
     q = deque([(start, 0)])
     seen = {start}
-    while True:
+    while q:
         v, steps = q.popleft()
-        print(steps, len(q), len(seen))
         if v == end:
             return steps
         for vv in v.neighbors():
@@ -30,4 +23,14 @@ def shortest_path(g, start):
                 seen.add(vv)
                 q.append((vv, steps + 1))
 
-print(shortest_path(grid, start))
+
+grid = set()
+for i, v in enumerate(coords, 1):
+    grid.add(v)
+    s = shortest_path(grid, start)
+    if i == byte_count:
+        print(s)
+    if s is None:
+        print(v)
+        break
+
