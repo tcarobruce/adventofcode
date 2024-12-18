@@ -12,25 +12,29 @@ byte_count = 12 if "sample" in sys.argv[1] else 1024
 
 
 def shortest_path(g, start):
-    q = deque([(start, 0)])
+    q = deque([(start, [])])
     seen = {start}
     while q:
-        v, steps = q.popleft()
+        v, path = q.popleft()
         if v == end:
-            return steps
+            return path
         for vv in v.neighbors():
             if vv not in seen and vv not in grid and vv.in_extent(start, end):
                 seen.add(vv)
-                q.append((vv, steps + 1))
+                q.append((vv, path + [vv]))
 
 
 grid = set()
+path = None
 for i, v in enumerate(coords, 1):
     grid.add(v)
-    s = shortest_path(grid, start)
+    if i < byte_count:
+        continue
+    if path is None or v in path:
+        path = shortest_path(grid, start)
     if i == byte_count:
-        print(s)
-    if s is None:
+        print(len(path))
+    if i > 0 and path is None:
         print(v)
         break
 
