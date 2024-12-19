@@ -52,26 +52,12 @@ def get_output(a, b, c, program, dbg=False, break_early=False):
     return out
 
 
-#print(get_output(A, B, C, program))
-#Program: 2,4, 1,2, 7,5, 1,7, 4,4, 0,3, 5,5, 3,0
-
-print(program)
-# i = 0
-# while True:
-#     r = get_output(i, B, C, program)
-#     if program[-len(r):] == r:
-#         print(i, r)
-#     i += 1
-
-#print(get_output(43, B, C, program, dbg=True))
-#print(get_output(177313, B, C, program, dbg=True))
-#print(get_output(177313, B, C, program, dbg=True))
-#exit()
 a = 0
-results = []
 for i in range(len(program)):
     p = program[-1-i:]
-    a *= 8
+    a = 8 * a
+    if a:
+        a -= 8
     while True:
         a += 1
         r = get_output(a, B, C, program)
@@ -102,16 +88,6 @@ print(program)
 177505 [0, 3, 5, 5, 3, 0]
 193697 [0, 3, 5, 5, 3, 0]
 
-# prefixes:
-7 [2]
-15 [2, 4]
-15375 [2, 4, 1, 2, 7]
-80911 [2, 4, 1, 2, 7, 5]
-1063951 [2, 4, 1, 2, 7, 5, 1]
-1129487 [2, 4, 1, 2, 7, 5, 1]
-'''
-
-"""
 2 4: B = A % 8
 1 2: B = B ^ 2
 7 5: C = A // 2**B
@@ -120,10 +96,4 @@ print(program)
 0 3: A = A // 8
 5 5: B % 8 -> out
 3 0: if A jmp 0
-
-
-
-b = 0
-a *= 8
-b ^ c
-"""
+'''
