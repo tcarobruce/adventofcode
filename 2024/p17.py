@@ -9,38 +9,121 @@ C = readints(lines[2])[0]
 program = readints(lines[4])
 
 
-pointer = 0
-out = []
-while pointer < len(program):
-    ins = program[pointer]
-    opr = program[pointer + 1]
-    combo = {4: A, 5: B, 6: C}.get(opr, opr)
+def get_output(a, b, c, program, dbg=False, break_early=False):
+    pointer = 0
+    out = []
+    while pointer < len(program):
+        ins = program[pointer]
+        opr = program[pointer + 1]
+        combo = {4: a, 5: b, 6: c}.get(opr, opr)
 
-    if ins == 0:
-        A = A // 2**combo
+        if dbg:
+            print(f"A: {a} B: {b} C: {c} pt: {pointer} {ins}/{opr}/{combo}, {out}")
+            input()
 
-    elif ins == 1:
-        B = B ^ opr
+        if ins == 0:
+            a = a // 2**combo
 
-    elif ins == 2:
-        B = combo % 8
+        elif ins == 1:
+            b = b ^ opr
 
-    elif ins == 3 and A != 0:
-        pointer = opr
-        continue
+        elif ins == 2:
+            b = combo % 8
 
-    elif ins == 4:
-        B = B ^ C
+        elif ins == 3 and a != 0:
+            pointer = opr
+            continue
 
-    elif ins == 5:
-        out.append(str(combo % 8))
+        elif ins == 4:
+            b = b ^ c
 
-    elif ins == 6:
-        B = A // 2**combo
+        elif ins == 5:
+            s = combo % 8
+            out.append(s)
 
-    elif ins == 7:
-        C = A // 2**combo
+        elif ins == 6:
+            b = a // 2**combo
 
-    pointer += 2
+        elif ins == 7:
+            c = a // 2**combo
 
-print(",".join(out))
+        pointer += 2
+
+    return out
+
+
+#print(get_output(A, B, C, program))
+#Program: 2,4, 1,2, 7,5, 1,7, 4,4, 0,3, 5,5, 3,0
+
+print(program)
+# i = 0
+# while True:
+#     r = get_output(i, B, C, program)
+#     if program[-len(r):] == r:
+#         print(i, r)
+#     i += 1
+
+#print(get_output(43, B, C, program, dbg=True))
+#print(get_output(177313, B, C, program, dbg=True))
+#print(get_output(177313, B, C, program, dbg=True))
+#exit()
+a = 0
+results = []
+for i in range(len(program)):
+    p = program[-1-i:]
+    a *= 8
+    while True:
+        a += 1
+        r = get_output(a, B, C, program)
+        if r == p:
+            print(a, r)
+            break
+
+print(a)
+print(get_output(a, B, C, program))
+print(program)
+
+'''
+# suffixes (better!):
+5 [0]
+43 [3, 0]
+47 [3, 0]
+346 [5, 3, 0]
+378 [5, 3, 0]
+2770 [5, 5, 3, 0]
+2773 [5, 5, 3, 0]
+3026 [5, 5, 3, 0]
+22164 [3, 5, 5, 3, 0]
+22187 [3, 5, 5, 3, 0]
+22188 [3, 5, 5, 3, 0]
+24212 [3, 5, 5, 3, 0]
+177313 [0, 3, 5, 5, 3, 0]
+177503 [0, 3, 5, 5, 3, 0]
+177505 [0, 3, 5, 5, 3, 0]
+193697 [0, 3, 5, 5, 3, 0]
+
+# prefixes:
+7 [2]
+15 [2, 4]
+15375 [2, 4, 1, 2, 7]
+80911 [2, 4, 1, 2, 7, 5]
+1063951 [2, 4, 1, 2, 7, 5, 1]
+1129487 [2, 4, 1, 2, 7, 5, 1]
+'''
+
+"""
+2 4: B = A % 8
+1 2: B = B ^ 2
+7 5: C = A // 2**B
+1 7: B = B ^ 7
+4 4: B = B ^ C
+0 3: A = A // 8
+5 5: B % 8 -> out
+3 0: if A jmp 0
+
+
+
+b = 0
+a *= 8
+b ^ c
+"""
