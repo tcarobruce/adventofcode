@@ -20,14 +20,5 @@ def get_val(wire):
         signals[wire] = s
     return s
 
-zs = [z for z in connections if z[0] == 'z']
-zs.sort()
-i = 0
-total = 0
-for z in zs:
-    s = get_val(z)
-    print(z)
-    total += s << i
-    i += 1
-
-print(total)
+zs = sorted([z for z in connections if z[0] == 'z'])
+print(sum([get_val(z) << i for i, z in enumerate(zs)]))
