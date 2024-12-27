@@ -8,7 +8,6 @@ codes = [ln.strip() for ln in open(sys.argv[1])]
 dirs = {'>': V(1, 0), 'v': V(0, 1), '<': V(-1, 0), '^': V(0, -1)}
 inv_dirs = {v: k for k, v in dirs.items()}
 
-
 numeric = readgridv("789 456 123 .0A".split())
 numeric.pop(V(0, 3))
 inv_numeric = {v: k for k, v in numeric.items()}
@@ -27,7 +26,7 @@ def move_pad(inv_map, from_key, to_key):
 
 def move_npad(from_key, to_key):
     xs, ys = move_pad(inv_numeric, from_key, to_key)
-    if xs and xs[0] == '<' and (from_key in 'A0'):
+    if xs and xs[0] == '<' and (from_key == '0' or (len(xs) == 2 and from_key == 'A')):
         return ''.join(ys + xs)
     else:
         return ''.join(xs + ys)
@@ -35,7 +34,7 @@ def move_npad(from_key, to_key):
 
 def move_dpad(from_key, to_key):
     xs, ys = move_pad(inv_directional, from_key, to_key)
-    if xs and xs[0] == '<' and from_key in 'A^':
+    if xs and xs[0] == '<' and (from_key == '^' or (len(xs) == 2 and from_key == 'A')):
         return ''.join(ys + xs)
     else:
         return ''.join(xs + ys)
