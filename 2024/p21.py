@@ -22,11 +22,8 @@ def x_legal(key, xoff, level):
     else:
         return not (key == "^" or (key == "A" and xoff < -1))
 
-CACHE = {}
+@cache
 def sequence(code, max_level, level=0):
-    k = (code, max_level, level)
-    if k in CACHE:
-        return CACHE[k]
     key = "A"
     result = ""
     pad = dpad if level else npad
@@ -35,17 +32,18 @@ def sequence(code, max_level, level=0):
         xoff, yoff = [(t - f) for t, f in zip(pad[next_key], pad[key])]
         xs = abs(xoff) * ('<' if xoff < 0 else '>')
         ys = abs(yoff) * ('^' if yoff < 0 else 'v')
-        if x_legal(key, xoff, level):
+        if xoff and yoff and x_legal(key, xoff, level):
             moves = [xs + ys + "A", ys + xs + "A"]
         else:
             moves = [ys + xs + "A"]
         if level == max_level:
             result += moves[0]
         else:
-            result += min([sequence(seq, max_level, level=level+1) for seq in moves], key=lambda s: len(s))
+            m = min([sequence(seq, max_level, level=level+1) for seq in moves], key=lambda s: len(s))
+            # if level == 1 and xoff and yoff and x_legal(key, xoff, level) and m != xs + ys + 'A':
+            #     print("DEVIANT", level, key, next_key, xoff, yoff, m)
+            result += m
         key = next_key
-    if len(code) < 12:
-        CACHE[k] = result
     return result
 
 
@@ -53,5 +51,5 @@ def getint(code):
     return int(code.lstrip("0").rstrip("A"))
 
 
-#print(sum([len(sequence(code, 2)) * getint(code) for code in codes]))
+print(sum([len(sequence(code, 2)) * getint(code) for code in codes]))
 print(sum([len(sequence(code, 25)) * getint(code) for code in codes]))
