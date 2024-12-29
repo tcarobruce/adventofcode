@@ -37,22 +37,16 @@ def sequence(code, max_level, level=0):
         xoff, yoff = [(t - f) for t, f in zip(pad[next_key], pad[key])]
         xs = abs(xoff) * ('<' if xoff < 0 else '>')
         ys = abs(yoff) * ('^' if yoff < 0 else 'v')
-        if not xoff and not yoff:
-            moves = ["A"]
-        elif not xoff:
-            moves = [ys + "A"]
-        elif not yoff:
-            moves = [xs + "A"]
+        if not xoff or not yoff or not y_can_go_first(key, yoff, level):
+            moves = [xs + ys]
         elif not x_can_go_first(key, xoff, level):
-            moves = [ys + xs + "A"]
-        elif not y_can_go_first(key, yoff, level):
-            moves = [xs + ys + "A"]
+            moves = [ys + xs]
         else:
-            moves = [xs + ys + "A", ys + xs + "A"]
+            moves = [xs + ys, ys + xs]
         if level == max_level:
-            result += len(moves[0])
+            result += len(moves[0]) + 1
         else:
-            result += min([sequence(seq, max_level, level=level+1) for seq in moves])
+            result += min([sequence(seq + "A", max_level, level=level+1) for seq in moves])
         key = next_key
     return result
 
