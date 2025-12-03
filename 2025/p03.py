@@ -1,16 +1,28 @@
 import sys
+from functools import cache
 
-total = 0
+p1 = p2 = 0
+banks = []
 
-def max_joltage(bank):
-    if len(bank) < 2:
+@cache
+def max_joltage(bank_id, switches, idx=0):
+    if switches == 0:
         return 0
-    return max(10 * bank[0] + max(bank[1:]), max_joltage(bank[1:]))
+    bank = banks[bank_id]
+    if len(bank) - idx < switches:
+        return 0
+    a = 10**(switches-1) * bank[idx] + max_joltage(bank_id, switches-1, idx=idx+1)
+    b = max_joltage(bank_id, switches, idx=idx+1)
+    return max(a, b)
 
-for ln in open(sys.argv[1]):
+for i, ln in enumerate(open(sys.argv[1])):
     bank = [int(c) for c in ln.strip()]
-    m = max_joltage(bank)
-    print(ln, m)
-    total += m
+    banks.append(bank)
+    m1 = max_joltage(i, 2)
+    m2 = max_joltage(i, 12)
+    # print(i, ln, m1, m2)
+    p1 += m1
+    p2 += m2
 
-print(total)
+print(p1)
+print(p2)
