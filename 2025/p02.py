@@ -2,43 +2,37 @@ import sys
 import math
 
 ranges = []
-invalid_sum = 0
 
-def find_invalid_ids(range_):
-    a, b = range_
-    len_a = len(str(a))
-    len_b = len(str(b))
+invalid_sum = invalid_sum2 = 0
 
-    if len_a % 2 == 0:
-        digits = len_a
-        base = 10**(digits//2) + 1
-        low = int(math.ceil(a / base)) * base
-        high = min(b, 10**digits)
-    elif len_b % 2 == 0:
-        digits = len_b
-        base = 10**(digits//2) + 1
-        low = int(math.ceil(max(a, 10**(digits-1)) / base)) * base
-        high = b
-    else:
-        return []
-
-#    print("a %s ; b %s ; digits %s ; low %s ; high %s ; base %s" % (a, b, digits, low, high, base))
-
-    for id in range(low, high + 1, base):
-        yield id
+def is_invalid(n, max_reps=None):
+    digits = len(str(n))
+    for zeros in range(0, digits // 2):
+        div, mod = divmod(digits, (zeros + 1))
+        if mod != 0:
+            continue
+        if max_reps is not None and div > max_reps:
+            continue
+        sub = ('0' * zeros + '1')
+        d = int('1' + sub * (div - 1))
+        #print(zeros, sub, d, n % d)
+        if n % d == 0:
+            return True
+    return False
 
 for pair in open(sys.argv[1]).read().split(","):
-    ranges.append(tuple([int(x) for x in pair.split("-")]))
+    a, b = [int(x) for x in pair.split("-")]
 
-for range_ in ranges:
-    a, b = range_
-    #print(len(str(a)), len(str(b)), len(str(b)) - len(str(a)))
-    print(range_)
-    for id in find_invalid_ids(range_):
-        print("  ", id)
-        invalid_sum += id
-    #invalid_sum += sum(find_invalid_ids(range_))
+    print(a, b)
+    for n in range(a, b + 1):
+        if is_invalid(n, 2):
+            #print(' ', n)
+            invalid_sum += n
+        if is_invalid(n):
+            #print(' ', n)
+            invalid_sum2 += n
 
 print(invalid_sum)
+print(invalid_sum2)
 
 
