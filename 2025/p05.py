@@ -1,4 +1,5 @@
 import sys
+from collections import Counter
 
 txt = open(sys.argv[1]).read()
 ranges_txt, ingredients_txt = txt.split("\n\n")
@@ -12,7 +13,7 @@ for ln in ranges_txt.split():
 for ln in ingredients_txt.split():
     ingredients.append(int(ln))
 
-
+# p1
 for ingredient in ingredients:
     for a, b in ranges:
         if a <= ingredient <= b:
@@ -21,25 +22,28 @@ for ingredient in ingredients:
 
 print(fresh)
 
-all_range_indexes = []
+indexes = Counter()
 for a, b in ranges:
-    all_range_indexes.append((a, 1))
-    all_range_indexes.append((b, -1))
-all_range_indexes.sort(key=lambda x: (x[0], -x[1]))
+    indexes[a] += 1
+    indexes[b + 1] -= 1
+
+sorted_indexes = sorted(indexes.keys())
 
 state = 0
 last_on = None
 total = 0
-for idx, change in all_range_indexes:
+for idx in sorted_indexes:
+    change = indexes[idx]
+    if change == 0:
+        continue
     state += change
     if state == 0:
-        total += (idx - last_on + 1)
-        #print(idx, last_on, idx-last_on+1)
+        total += (idx - last_on)
         last_on = None
-    elif state == 1 and last_on is None:
+    elif state > 0 and last_on is None:
         last_on = idx
-    elif state < 0:
-        print("ERROR, %s at %s" % (state, idx))
+    else:
+        assert state >= 0, f"ERROR state was {state}"
 
 print(total)
 
